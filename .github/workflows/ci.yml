@@ -37,7 +37,7 @@ jobs:
 
           echo "VERSION=${VERSION}"
           
-          pdoc --docformat="google" src/pumpwood_communication -o ./docs
+          pdoc --docformat="google" src/dynm -o ./docs
           
           poetry publish --username __token__ --password "$PYPI_API_TOKEN"
 
