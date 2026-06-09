@@ -46,9 +46,9 @@ jobs:
 
           echo "VERSION=${VERSION}"
           
-          pdoc --docformat="google" src/dynm -o ./docs
+          # pdoc --docformat="google" src/dynm -o ./docs
           
-          # poetry publish --username __token__ --password "$PYPI_API_TOKEN"
+          poetry publish --username __token__ --password "$PYPI_API_TOKEN"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
