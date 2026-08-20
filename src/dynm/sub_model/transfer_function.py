@@ -92,7 +92,7 @@ class TransferFunction():
 
             Hn = np.zeros([Gi.shape[0], self.gamma_order])
             for o in range(self.gamma_order):
-                xn = np.ravel(x[n, o])
+                xn = np.ravel(x[n, o])[0]
                 Hn[0, o] = xn
 
             In = np.identity(self.gamma_order)

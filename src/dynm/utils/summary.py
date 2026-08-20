@@ -44,10 +44,10 @@ def get_predictive_log_likelihood(mod):
     float: The predictive log-likelihood.
     """
     predictive_df = mod.dict_filter.get('predictive').dropna().copy()
-    y = predictive_df.y.values
-    f = predictive_df.f.values
-    q = np.sqrt(predictive_df.q.values)
-    t = predictive_df.t.values
+    y = predictive_df.y.to_numpy()
+    f = predictive_df.f.to_numpy()
+    q = np.sqrt(predictive_df.q.to_numpy())
+    t = predictive_df.t.to_numpy()
 
-    llk = np.sum(np.log(stats.t.pdf(x=y, df=t+1, loc=f, scale=q)))
+    llk = np.sum(np.log(stats.t.pdf(x=y, df=t + 1, loc=f, scale=q)))
     return llk

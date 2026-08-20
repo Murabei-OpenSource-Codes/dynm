@@ -20,8 +20,7 @@ def format_missing_keys_dict(missing_keys: dict):
 
 
 def validate_polynomial_model_dict_keys(model_dict: dict):
-    """
-    Validate keys in a dictionary representing a polynomial model.
+    """Validate keys in a dictionary representing a polynomial model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -45,8 +44,7 @@ def validate_polynomial_model_dict_keys(model_dict: dict):
 
 
 def validate_regression_model_dict_keys(model_dict: dict):
-    """
-    Validate keys in a dictionary representing a regression model.
+    """Validate keys in a dictionary representing a regression model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -70,8 +68,7 @@ def validate_regression_model_dict_keys(model_dict: dict):
 
 
 def validate_seasonal_model_dict_keys(model_dict: dict):
-    """
-    Validate keys in a dictionary representing a seasonal model.
+    """Validate keys in a dictionary representing a seasonal model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -96,8 +93,7 @@ def validate_seasonal_model_dict_keys(model_dict: dict):
 
 
 def validate_transfer_function_model_dict_keys(model_dict: dict):
-    """
-    Validate keys in a dictionary representing a transfer function model.
+    """Validate keys in a dictionary representing a transfer function model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -123,8 +119,7 @@ def validate_transfer_function_model_dict_keys(model_dict: dict):
 
 
 def validate_autoregressive_model_dict_keys(model_dict: dict):
-    """
-    Validate keys in a dictionary representing an autoregressive model.
+    """Validate keys in a dictionary representing an autoregressive model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -148,8 +143,7 @@ def validate_autoregressive_model_dict_keys(model_dict: dict):
 
 
 def validate_model_dict_polynomial_mean_array(model_dict: dict):
-    """
-    Validate prior mean array shape for polynomial model.
+    """Validate prior mean array shape for polynomial model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -173,8 +167,7 @@ def validate_model_dict_polynomial_mean_array(model_dict: dict):
 
 
 def validate_model_dict_regression_mean_array(model_dict: dict):
-    """
-    Validate prior mean array shape for regression model.
+    """Validate prior mean array shape for regression model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -198,8 +191,7 @@ def validate_model_dict_regression_mean_array(model_dict: dict):
 
 
 def validate_model_dict_seasonal_mean_array(model_dict: dict):
-    """
-    Validate prior mean array shape for seasonal model.
+    """Validate prior mean array shape for seasonal model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -227,8 +219,7 @@ def validate_model_dict_seasonal_mean_array(model_dict: dict):
 
 
 def validate_model_dict_transfer_function_mean_array(model_dict: dict):
-    """
-    Validate prior mean array shape for transfer function model.
+    """Validate prior mean array shape for transfer function model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -257,8 +248,7 @@ def validate_model_dict_transfer_function_mean_array(model_dict: dict):
 
 
 def validate_model_dict_autoregressive_mean_array(model_dict: dict):
-    """
-    Validate prior mean array shape for autoregressive model.
+    """Validate prior mean array shape for autoregressive model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -283,8 +273,7 @@ def validate_model_dict_autoregressive_mean_array(model_dict: dict):
 
 
 def validate_model_dict_polynomial_covariance_matrix(model_dict: dict):
-    """
-    Validate prior covariance matrix shape for polynomial model.
+    """Validate prior covariance matrix shape for polynomial model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -308,8 +297,7 @@ def validate_model_dict_polynomial_covariance_matrix(model_dict: dict):
 
 
 def validate_model_dict_regression_covariance_matrix(model_dict: dict):
-    """
-    Validate prior covariance matrix shape for regression model.
+    """Validate prior covariance matrix shape for regression model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -333,8 +321,7 @@ def validate_model_dict_regression_covariance_matrix(model_dict: dict):
 
 
 def validate_model_dict_seasonal_covariance_matrix(model_dict: dict):
-    """
-    Validate prior covariance matrix shape for seasonal model.
+    """Validate prior covariance matrix shape for seasonal model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -362,8 +349,7 @@ def validate_model_dict_seasonal_covariance_matrix(model_dict: dict):
 
 
 def validate_model_dict_transfer_function_covariance_matrix(model_dict: dict):
-    """
-    Validate prior covariance matrix shape for transfer function model.
+    """Validate prior covariance matrix shape for transfer function model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -393,8 +379,7 @@ def validate_model_dict_transfer_function_covariance_matrix(model_dict: dict):
 
 
 def validate_model_dict_autoregressive_covariance_matrix(model_dict: dict):
-    """
-    Validate prior covariance matrix shape for autoregressive model.
+    """Validate prior covariance matrix shape for autoregressive model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -419,8 +404,7 @@ def validate_model_dict_autoregressive_covariance_matrix(model_dict: dict):
 
 
 def validate_model_dict_polynomial_discount_array(model_dict: dict):
-    """
-    Validate declared discount factor for polynomial model.
+    """Validate declared discount factor for polynomial model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -451,8 +435,7 @@ def validate_model_dict_polynomial_discount_array(model_dict: dict):
 
 
 def validate_model_dict_regression_discount_array(model_dict: dict):
-    """
-    Validate declared discount factor for regression model.
+    """Validate declared discount factor for regression model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -483,8 +466,7 @@ def validate_model_dict_regression_discount_array(model_dict: dict):
 
 
 def validate_model_dict_seasonal_discount_array(model_dict: dict):
-    """
-    Validate declared discount factor for seasonal model.
+    """Validate declared discount factor for seasonal model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -515,8 +497,7 @@ def validate_model_dict_seasonal_discount_array(model_dict: dict):
 
 
 def validate_model_dict_transfer_function_discount_array(model_dict: dict):
-    """
-    Validate declared discount factor for transfer function model.
+    """Validate declared discount factor for transfer function model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -558,8 +539,7 @@ def validate_model_dict_transfer_function_discount_array(model_dict: dict):
 
 
 def validate_model_dict_autoregressive_discount_array(model_dict: dict):
-    """
-    Validate declared discount factor for autoregressive model.
+    """Validate declared discount factor for autoregressive model.
 
     Args:
         model_dict (dict): Dictionary containing model keys.
@@ -598,8 +578,7 @@ def validate_model_dict_autoregressive_discount_array(model_dict: dict):
 
 
 def validate_input_dict(mod, X: dict):
-    """
-    Validate input dictionary against model parameters.
+    """Validate input dictionary against model parameters.
 
     Parameters:
     - mod: Bayesian Dynamic Model object.

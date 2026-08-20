@@ -65,10 +65,10 @@ class SeasonalFourier():
         G = np.zeros([n, n])
 
         for j in range(p):
-            c = np.cos(2*np.pi*seas_harm_components[j] / seas_period)
-            s = np.sin(2*np.pi*seas_harm_components[j] / seas_period)
-            idx = 2*j
-            G[idx:(idx+2), idx:(idx+2)] = np.array([[c, s], [-s, c]])
+            c = np.cos(2 * np.pi * seas_harm_components[j] / seas_period)
+            s = np.sin(2 * np.pi * seas_harm_components[j] / seas_period)
+            idx = 2 * j
+            G[idx:(idx + 2), idx:(idx + 2)] = np.array([[c, s], [-s, c]])
 
         return G
 

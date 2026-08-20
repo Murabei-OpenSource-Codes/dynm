@@ -37,7 +37,7 @@ def _build_Gnonlinear(m: np.array, order: int):
     response_block = m[response_block_index, 0]
     decay_block = m[decay_block_index, 0]
 
-    diag_decay_block = np.identity(order)[:order-1, :]
+    diag_decay_block = np.identity(order)[:order - 1, :]
     diag_response_block = np.diag(response_block)[1:, :] * 0
 
     nonlinear_block = np.block([[decay_block, response_block],

@@ -149,7 +149,7 @@ class BayesianDynamicModel():
         self.model_dict = copy(model_dict)
         self.V = V
         self.delvar = delvar
-        
+
         self._set_superposition_blocks()
 
         self._set_gamma_distribution_parameters()
@@ -167,8 +167,7 @@ class BayesianDynamicModel():
         self._set_parameters_name()
 
     def _set_superposition_blocks(self):
-        """
-        Set the superposition blocks.
+        """Set the superposition blocks.
 
         Set the superposition blocks for both DynamicLinearModel (DLM) and
         DynamicNonLinearModel (DNM).
@@ -198,8 +197,7 @@ class BayesianDynamicModel():
             self.v = self.s
 
     def _concatenate_regression_vector(self):
-        """
-        Concatenate regression vectors.
+        """Concatenate regression vectors.
 
         Concatenates the regression vectors from DLM and DNM into a
         single vector 'F'.
@@ -207,8 +205,7 @@ class BayesianDynamicModel():
         self.F = np.vstack((self.dlm.F, self.dnm.F))
 
     def _concatenate_evolution_matrix(self):
-        """
-        Concatenate equation evolution matrices.
+        """Concatenate equation evolution matrices.
 
         Concatenates the evolution matrices from DLM and DNM into a
         single matrix 'G'.
@@ -216,8 +213,7 @@ class BayesianDynamicModel():
         self.G = block_diag(self.dlm.G, self.dnm.G)
 
     def _concatenate_prior_mean(self):
-        """
-        Concatenate prior mean vectors.
+        """Concatenate prior mean vectors.
 
         Concatenates the prior mean vectors from DLM and DNM into a
         single vector 'a'.
@@ -226,8 +222,7 @@ class BayesianDynamicModel():
         self.m = np.vstack((self.dlm.m, self.dnm.m))
 
     def _concatenate_prior_covariance_matrix(self):
-        """
-        Concatenate prior covariance matrices.
+        """Concatenate prior covariance matrices.
 
         Concatenates the prior covariance matrices from DLM and DNM into a
         single matrix 'R'.
@@ -236,8 +231,7 @@ class BayesianDynamicModel():
         self.C = block_diag(self.dlm.C, self.dnm.C)
 
     def _set_superposition_block_index(self):
-        """
-        Set superposition block indices.
+        """Set superposition block indices.
 
         Sets the indices for the superposition blocks in the concatenated
         vectors/matrices.
@@ -264,8 +258,7 @@ class BayesianDynamicModel():
         }
 
     def _set_parameters_name(self):
-        """
-        Set parameters names.
+        """Set parameters names.
 
         Concatenates the parameter names from DLM and DNM into a single list
         'names_parameters'.
@@ -277,8 +270,7 @@ class BayesianDynamicModel():
         self.names_parameters = dlm_names_parameters
 
     def _build_F(self, x: np.array = None):
-        """
-        Build the regression vector.
+        """Build the regression vector.
 
         Constructs the regression vector 'F' based on the provided regressor
         'x' (only if regression was set) and
@@ -292,8 +284,7 @@ class BayesianDynamicModel():
         return F
 
     def _build_G(self, x: np.array = None):
-        """
-        Build the state evolution matrix.
+        """Build the state evolution matrix.
 
         Constructs the state evolution matrix 'G' based on the
         provided transfer function input 'x'
@@ -307,8 +298,7 @@ class BayesianDynamicModel():
         return G
 
     def _build_W(self):
-        """
-        Build the process noise covariance matrix.
+        """Build the process noise covariance matrix.
 
         Constructs the process noise covariance matrix 'W' based on the
         models DLM and DNM.
@@ -329,8 +319,7 @@ class BayesianDynamicModel():
         return h
 
     def _calc_prior_mean_and_var(self):
-        """
-        Calculate prior mean and variance.
+        """Calculate prior mean and variance.
 
         Calculates the prior mean vector 'a' and covariance matrix 'R'
         using the current state and process parameters.
@@ -342,8 +331,7 @@ class BayesianDynamicModel():
         return a, R
 
     def _calc_predictive_mean_and_var(self):
-        """
-        Calculate predictive mean and variance.
+        """Calculate predictive mean and variance.
 
         Calculates the predictive mean 'f' and variance 'q' based on the
         current state and process parameters.
@@ -353,8 +341,7 @@ class BayesianDynamicModel():
         return f, q
 
     def _update(self, y: float, X: dict):
-        """
-        Update the model with new observations.
+        """Update the model with new observations.
 
         Updates the model state and parameters based on the new observation
         'y' and input variables 'X'.
@@ -392,8 +379,7 @@ class BayesianDynamicModel():
             self._update_superposition_block_moments()
 
     def _estimate_observational_variance(self):
-        """
-        Estimate the observational variance.
+        """Estimate the observational variance.
 
         Estimates the observational variance 's' based on the
         model's parameters.
@@ -407,8 +393,7 @@ class BayesianDynamicModel():
             self.r = 1
 
     def _kalman_filter_update(self):
-        """
-        Kalman filter update.
+        """Kalman filter update.
 
         Updates the space state parameters posterior moments
         using Kalman filter.
@@ -419,8 +404,7 @@ class BayesianDynamicModel():
         self.C = self.r * (self.R - self.q * self.A @ self.A.T)
 
     def _update_superposition_block_F(self):
-        """
-        Update the superposition block regression vectors.
+        """Update the superposition block regression vectors.
 
         Updates the regression vectors for DLM and DNM based on the
         concatenated observation matrix 'F'.
@@ -435,8 +419,7 @@ class BayesianDynamicModel():
         self.dnm._update_submodels_F()
 
     def _update_superposition_block_G(self):
-        """
-        Update the superposition block evolution matrices.
+        """Update the superposition block evolution matrices.
 
         Updates the evolution matrices for DLM and DNM based on the
         concatenated evolution matrix 'G'.
@@ -451,8 +434,7 @@ class BayesianDynamicModel():
         self.dnm._update_submodels_G()
 
     def _update_superposition_block_moments(self):
-        """
-        Update the superposition block moments.
+        """Update the superposition block moments.
 
         Updates the posterior mean vectors and covariance matrices for
         DLM and DNM based on the concatenated mean vector 'm' and
@@ -487,8 +469,7 @@ class BayesianDynamicModel():
             X: dict = {},
             level: float = 0.05,
             smooth: bool = False):
-        """
-        Fit the model to the data.
+        """Fit the model to the data.
 
         Fits the model to the provided data 'y' with optional regressors 'X'
         and returns the fitted model object.
@@ -516,8 +497,7 @@ class BayesianDynamicModel():
             k: int,
             X: dict = {},
             level: float = 0.05):
-        """
-        Perform k-step ahead prediction.
+        """Perform k-step ahead prediction.
 
         Performs k-step ahead prediction using the fitted model
         and optional regressors 'X' and returns the predicted values and
@@ -560,7 +540,7 @@ class BayesianDynamicModel():
             # Predictive Distribution moments
             copy_mod.f, copy_mod.q = copy_mod._calc_predictive_mean_and_var()
 
-            dict_kstep_forecast['t'].append(t+1)
+            dict_kstep_forecast['t'].append(t + 1)
             dict_kstep_forecast['f'].append(copy_mod.f)
             dict_kstep_forecast['q'].append(copy_mod.q)
 
@@ -589,8 +569,7 @@ class BayesianDynamicModel():
         return dict_results
 
     def summary(self):
-        """
-        Generate a summary of the model.
+        """Generate a summary of the model.
 
         Generates a summary of the model including model parameters,
         state estimates, and predictive performance.

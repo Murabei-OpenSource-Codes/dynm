@@ -101,10 +101,9 @@ class DynamicNonLinearModel():
         self._set_parameters_name()
 
     def _validate_model_dict_keys(self):
-        """
-        Validate keys in the model dictionary.
+        """Validate keys in the model dictionary.
 
-        Raises
+        Raises:
         ------
         ValueError
             If required keys are missing.
@@ -121,10 +120,9 @@ class DynamicNonLinearModel():
                 model_dict=ar_model_dict)
 
     def _validate_model_dict_mean_array(self):
-        """
-        Validate mean array in the model dictionary.
+        """Validate mean array in the model dictionary.
 
-        Raises
+        Raises:
         ------
         ValueError
             If prior mean arrays are incorrect.
@@ -141,10 +139,9 @@ class DynamicNonLinearModel():
                 model_dict=ar_model_dict)
 
     def _validate_model_dict_cov_matrix(self):
-        """
-        Validate covariance matrix in the model dictionary.
+        """Validate covariance matrix in the model dictionary.
 
-        Raises
+        Raises:
         ------
         ValueError
             If prior covariance matrices are incorrect.
@@ -161,10 +158,9 @@ class DynamicNonLinearModel():
                 model_dict=ar_model_dict)
 
     def _validate_model_dict_discount(self):
-        """
-        Validate discount in the model dictionary.
+        """Validate discount in the model dictionary.
 
-        Raises
+        Raises:
         ------
         ValueError
             If the discount array is incompatible with the model
@@ -280,23 +276,23 @@ class DynamicNonLinearModel():
     def _set_parameters_name(self):
         """Set parameter names."""
         ar__response_labels = \
-            ['xi_' + str(i+1)
+            ['xi_' + str(i + 1)
              for i in range(self.autoregressive_model.order)]
 
         ar__decay_labels = \
-            ['phi_' + str(i+1)
+            ['phi_' + str(i + 1)
              for i in range(self.autoregressive_model.order)]
 
         tf__response_labels = \
-            ['E_' + str(i+1)
+            ['E_' + str(i + 1)
              for i in range(self.transfer_function_model.lambda_order)]
 
         tf__decay_labels = \
-            ['lambda_' + str(i+1)
+            ['lambda_' + str(i + 1)
              for i in range(self.transfer_function_model.lambda_order)]
 
         pulse_labels = \
-            ['gamma_' + str(i+1)
+            ['gamma_' + str(i + 1)
              for i in range(self.transfer_function_model.gamma_order)]
 
         names_parameters = (

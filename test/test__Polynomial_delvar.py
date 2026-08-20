@@ -18,7 +18,7 @@ mu = 1e-05
 np.random.seed(1111)
 for t in range(1, nobs):
     # Random errors
-    nu = np.random.normal(loc=0, scale=sd_y, size=1)
+    nu = np.random.normal(loc=0, scale=sd_y)
 
     # Observation
     y[t] = mu + nu
@@ -66,3 +66,28 @@ class TestPolynomialandRegression(unittest.TestCase):
         llk2 = mod2.llk
 
         self.assertTrue(llk1 < llk2)
+
+    def test__observational_variance_credible_interval(self):
+        """Test observational variance credible interval."""
+        model_dict = {
+            "polynomial": {
+                "m0": np.array([10]),
+                "C0": np.array([[9]]),
+                "ntrend": 1,
+                "discount": .995,
+            }
+        }
+
+        # Fit
+        mod = BayesianDynamicModel(model_dict=model_dict).fit(y=y)
+        posterior = mod.dict_filter.get("posterior")
+        var_df = posterior[
+            posterior["parameter"] == "observational_variance"]
+
+        lower = var_df["ci_lower"].to_numpy()
+        upper = var_df["ci_upper"].to_numpy()
+        mean = var_df["mean"].to_numpy()
+
+        self.assertTrue(np.all(lower <= mean))
+        self.assertTrue(np.all(mean <= upper))
+        self.assertTrue(np.all(lower >= 0.0))

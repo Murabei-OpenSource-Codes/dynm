@@ -24,5 +24,8 @@ build/
 # Package files
 *.jar
 
+# Virtual environment
+.venv/
+
 __pycache__/
 .Rproj.user

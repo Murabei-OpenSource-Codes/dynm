@@ -19,11 +19,11 @@ xi_2 = np.zeros(nobs)
 np.random.seed(1234)
 for t in range(1, nobs):
     # Random errors
-    nu = np.random.normal(loc=0, scale=sd_y, size=1)
+    nu = np.random.normal(loc=0, scale=sd_y)
 
     # Evolution
     xi_1[t] = phi_1 * xi_1[t - 1] + phi_2 * xi_2[t - 1] + nu
-    xi_2[t] = xi_1[t-1]
+    xi_2[t] = xi_1[t - 1]
 
     # Observation
     y[t] = xi_1[t]
@@ -188,13 +188,13 @@ class TestAutoregressive(unittest.TestCase):
             .dict_smooth.get("predictive")\
             .sort_values("t")
 
-        f = filter_predictive.f.values
-        fk = smooth_predictive.f.values
+        f = filter_predictive.f.to_numpy()
+        fk = smooth_predictive.f.to_numpy()
 
-        mse1 = np.mean((f-y)**2)
-        mse2 = np.mean((fk-y)**2)
+        mse1 = np.mean((f - y)**2)
+        mse2 = np.mean((fk - y)**2)
 
-        self.assertTrue(mse2/mse1 <= 1.0)
+        self.assertTrue(mse2 / mse1 <= 1.0)
 
     def test__invalid_model_dict_missing_keys(self):
         """Test incorrect model dict missing arguments."""

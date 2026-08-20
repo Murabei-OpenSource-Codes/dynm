@@ -27,8 +27,8 @@ xi_2 = np.zeros(nobs)
 np.random.seed(1111)
 for t in range(1, nobs):
     # Random errors
-    nu = np.random.normal(loc=0, scale=sd_y, size=1)
-    x[t] = np.random.normal(loc=0, scale=1, size=1)
+    nu = np.random.normal(loc=0, scale=sd_y)
+    x[t] = np.random.normal(loc=0, scale=1)
 
     # Evolution
     E_1[t] = (
@@ -41,8 +41,8 @@ for t in range(1, nobs):
         phi_2 * xi_2[t - 1] +
         nu)
 
-    E_2[t] = E_1[t-1]
-    xi_2[t] = xi_1[t-1]
+    E_2[t] = E_1[t - 1]
+    xi_2[t] = xi_1[t - 1]
 
     # Observation
     y[t] = E_1[t] + xi_1[t]
@@ -69,10 +69,7 @@ X = {"transfer_function": x}
 
 
 class TestAutoregressiveTransferFunction(unittest.TestCase):
-    """
-    Tests BayesianDynamicModel results for
-    Transfer Function + AutoRegressive Model.
-    """
+    """Tests Transfer Function plus Autoregressive model fit results."""
 
     def test__estimates_known_W(self):
         """Test parameters estimation with know W."""
@@ -293,10 +290,10 @@ class TestAutoregressiveTransferFunction(unittest.TestCase):
             .dict_smooth.get("predictive")\
             .sort_values("t")
 
-        f = filter_predictive.f.values
-        fk = smooth_predictive.f.values
+        f = filter_predictive.f.to_numpy()
+        fk = smooth_predictive.f.to_numpy()
 
-        mse1 = np.mean((f-y)**2)
-        mse2 = np.mean((fk-y)**2)
+        mse1 = np.mean((f - y)**2)
+        mse2 = np.mean((fk - y)**2)
 
-        self.assertTrue(mse2/mse1 <= 1.0)
+        self.assertTrue(mse2 / mse1 <= 1.0)

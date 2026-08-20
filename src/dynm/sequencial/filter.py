@@ -19,7 +19,7 @@ def _foward_filter(mod,
     x : np.ndarray
         Description of parameter `x`.
 
-    Returns
+    Returns:
     -------
     type
         Description of returned object.
@@ -44,7 +44,7 @@ def _foward_filter(mod,
         mod._update(y=y[t], X=Xt)
 
         # Dict 1steap forecast
-        dict_1step_forecast['t'].append(t+1)
+        dict_1step_forecast['t'].append(t + 1)
         dict_1step_forecast['y'].append(y[t])
         dict_1step_forecast['f'].append(mod.f)
         dict_1step_forecast['q'].append(mod.q)
@@ -59,7 +59,7 @@ def _foward_filter(mod,
         dict_state_evolution['G'].append(mod.G)
 
         # Observational variance
-        dict_observation_var['t'].append(t+1)
+        dict_observation_var['t'].append(t + 1)
         dict_observation_var['d'].append(np.ravel(mod.d)[0])
         dict_observation_var['n'].append(np.ravel(mod.n)[0])
         dict_observation_var['mean'].append(np.ravel(mod.s)[0])

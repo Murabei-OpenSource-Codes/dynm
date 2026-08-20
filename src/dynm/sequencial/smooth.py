@@ -16,7 +16,7 @@ def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
         dictionary with the posterior (m and C) and prior (a and R) moments
         for the state space parameters along time.
 
-    Returns
+    Returns:
     -------
     List: It contains the following components:
         - `df_predictive_smooth`: pd.DataFrame with the smoothing moments
@@ -39,13 +39,13 @@ def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
 
     # Dictionaty to save predictive and posterior parameters
     Xk = {'regression': [], 'transfer_function': []}
-    Xk['regression'] = copy_X['regression'][nobs-1, :]
-    Xk['transfer_function'] = copy_X['transfer_function'][nobs-1, :]
+    Xk['regression'] = copy_X['regression'][nobs - 1, :]
+    Xk['transfer_function'] = copy_X['transfer_function'][nobs - 1, :]
 
     FT = mod._build_F(x=Xk['regression'])
 
-    ak = m[nobs-1]
-    Rk = C[nobs-1]
+    ak = m[nobs - 1]
+    Rk = C[nobs - 1]
     fk = FT.T @ ak
     qk = (FT.T @ Rk @ FT).round(10)
     dict_smooth_params = {
@@ -57,19 +57,19 @@ def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
 
     # Perform smoothing
     for k in range(1, nobs):
-        Xk['regression'] = copy_X['regression'][nobs-k-1, :]
-        Xk['transfer_function'] = copy_X['transfer_function'][nobs-k-1, :, :]
+        Xk['regression'] = copy_X['regression'][nobs - k - 1, :]
+        Xk['transfer_function'] = copy_X['transfer_function'][nobs - k - 1, :, :]
 
         Fk = mod._build_F(x=Xk['regression'])
-        Gk = G[nobs-k]
+        Gk = G[nobs - k]
 
         # B_{t-k}
-        B_t_k = C[nobs-k-1] @ Gk.T @ np.linalg.pinv(
-            R[nobs-k], rcond=1e-10, hermitian=True)
+        B_t_k = C[nobs - k - 1] @ Gk.T @ np.linalg.pinv(
+            R[nobs - k], rcond=1e-10, hermitian=True)
 
         # a_t(-k) and R_t(-k)
-        ak = m[nobs-k-1] + B_t_k @ (ak - a[nobs-k])
-        Rk = C[nobs-k-1] + B_t_k @ (Rk - R[nobs-k]) @ B_t_k.T
+        ak = m[nobs - k - 1] + B_t_k @ (ak - a[nobs - k])
+        Rk = C[nobs - k - 1] + B_t_k @ (Rk - R[nobs - k]) @ B_t_k.T
 
         # f_t(-k) and q_t(-k)
         fk = Fk.T @ ak
@@ -80,7 +80,7 @@ def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
         dict_smooth_params["R"].append(Rk)
         dict_smooth_params["f"].append(fk.item())
         dict_smooth_params["q"].append(qk.item())
-        dict_smooth_params["t"].append(nobs-k)
+        dict_smooth_params["t"].append(nobs - k)
 
     # Organize the predictive smooth parameters
     dict_filter = {key: dict_smooth_params[key] for key in (

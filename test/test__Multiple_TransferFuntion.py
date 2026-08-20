@@ -59,30 +59,30 @@ sigma_x = np.identity(2) * .10
 
 # Simulate time series
 np.random.seed(1111)
-for t in range(0, nobs-1):
-    vt = np.random.normal(loc=0, scale=sd_y, size=1)
+for t in range(0, nobs - 1):
+    vt = np.random.normal(loc=0, scale=sd_y)
     omega = np.random.multivariate_normal(mean=m0 * 0.0, cov=W)
-    x[t+1, :] = np.random.multivariate_normal(mean=mu_x, cov=sigma_x, size=1)
+    x[t + 1, :] = np.random.multivariate_normal(mean=mu_x, cov=sigma_x)
 
     # Evolution
-    gamma_1[t+1] = gamma_1[t] + omega[4]
-    gamma_2[t+1] = gamma_2[t] + omega[9]
+    gamma_1[t + 1] = gamma_1[t] + omega[4]
+    gamma_2[t + 1] = gamma_2[t] + omega[9]
 
-    lambda_1[t+1] = lambda_1[t] + omega[2]
-    lambda_2[t+1] = lambda_2[t] + omega[3]
-    lambda_3[t+1] = lambda_3[t] + omega[7]
-    lambda_4[t+1] = lambda_4[t] + omega[8]
+    lambda_1[t + 1] = lambda_1[t] + omega[2]
+    lambda_2[t + 1] = lambda_2[t] + omega[3]
+    lambda_3[t + 1] = lambda_3[t] + omega[7]
+    lambda_4[t + 1] = lambda_4[t] + omega[8]
 
-    E1[t+1] = lambda_1[t] * E1[t] + lambda_2[t] * \
-        E2[t] + gamma_1[t+1] * x[t+1, 0] + omega[0]
-    E2[t+1] = E1[t] + omega[1]
+    E1[t + 1] = lambda_1[t] * E1[t] + lambda_2[t] * \
+        E2[t] + gamma_1[t + 1] * x[t + 1, 0] + omega[0]
+    E2[t + 1] = E1[t] + omega[1]
 
-    E3[t+1] = lambda_3[t] * E3[t] + lambda_4[t] * \
-        E4[t] + gamma_2[t+1] * x[t+1, 1] + omega[5]
-    E4[t+1] = E3[t] + omega[6]
+    E3[t + 1] = lambda_3[t] * E3[t] + lambda_4[t] * \
+        E4[t] + gamma_2[t + 1] * x[t + 1, 1] + omega[5]
+    E4[t + 1] = E3[t] + omega[6]
 
     # Observation
-    y[t+1] = E1[t+1] + E3[t+1] + vt
+    y[t + 1] = E1[t + 1] + E3[t + 1] + vt
 
 # Estimation
 m0 = np.array([0, 0, 1, 0, 0, 0, 0, 1, 0, 0])
@@ -265,13 +265,13 @@ class TestMultipleTransferFunction(unittest.TestCase):
             .dict_smooth.get("predictive")\
             .sort_values("t")
 
-        f = filter_predictive.f.values
-        fk = smooth_predictive.f.values
+        f = filter_predictive.f.to_numpy()
+        fk = smooth_predictive.f.to_numpy()
 
-        mse1 = np.mean((f-y)**2)
-        mse2 = np.mean((fk-y)**2)
+        mse1 = np.mean((f - y)**2)
+        mse2 = np.mean((fk - y)**2)
 
-        self.assertTrue(mse2/mse1 <= 1.0)
+        self.assertTrue(mse2 / mse1 <= 1.0)
 
     def test__model_labels(self):
         """Test models labels in posterior table."""

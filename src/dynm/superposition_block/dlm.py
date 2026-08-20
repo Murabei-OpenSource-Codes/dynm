@@ -119,10 +119,9 @@ class DynamicLinearModel():
         self._set_parameters_name()
 
     def _validate_model_dict_keys(self):
-        """
-        Validate keys in the model dictionary.
+        """Validate keys in the model dictionary.
 
-        Raises
+        Raises:
         ------
         ValueError
             If required keys are missing.
@@ -144,10 +143,9 @@ class DynamicLinearModel():
                 model_dict=seas_model_dict)
 
     def _validate_model_dict_mean_array(self):
-        """
-        Validate mean array in the model dictionary.
+        """Validate mean array in the model dictionary.
 
-        Raises
+        Raises:
         ------
         ValueError
             If prior mean arrays are incorrect.
@@ -169,10 +167,9 @@ class DynamicLinearModel():
                 model_dict=seas_model_dict)
 
     def _validate_model_dict_cov_matrix(self):
-        """
-        Validate covariance matrix in the model dictionary.
+        """Validate covariance matrix in the model dictionary.
 
-        Raises
+        Raises:
         ------
         ValueError
             If prior covariance matrices are incorrect.
@@ -194,10 +191,9 @@ class DynamicLinearModel():
                 model_dict=seas_model_dict)
 
     def _validate_model_dict_discount(self):
-        """
-        Validate discount in the model dictionary.
+        """Validate discount in the model dictionary.
 
-        Raises
+        Raises:
         ------
         ValueError
             If the discount factor is not a scalar or falls
@@ -336,15 +332,15 @@ class DynamicLinearModel():
     def _set_parameters_name(self):
         """Set parameter names."""
         level_labels = \
-            ['intercept_' + str(i+1)
+            ['intercept_' + str(i + 1)
              for i in range(self.polynomial_model.ntrend)]
 
         regn_labels = \
-            ['beta_' + str(i+1)
+            ['beta_' + str(i + 1)
              for i in range(self.regression_model.nregn)]
 
         seas_labels = \
-            ['seas_harm_' + str(i+1)
+            ['seas_harm_' + str(i + 1)
              for i in range(self.seasonal_model.nseas)]
 
         names_parameters = (level_labels + regn_labels + seas_labels)
