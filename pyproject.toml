@@ -1,6 +1,6 @@
 [project]
 name = "dynm"
-version = "0.0.6-b.0"
+version = "0.0.4-b.0"
 description = "Bayesian Dynamic Models."
 readme = "README.md"
 requires-python = ">=3.6"
