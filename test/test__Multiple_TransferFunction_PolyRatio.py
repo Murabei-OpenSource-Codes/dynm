@@ -35,24 +35,24 @@ sigma_x = np.identity(2)
 np.random.seed(1111)
 for t in range(1, nobs):
     # Random errors
-    nu = np.random.normal(loc=0, scale=sd_y, size=1)
-    x[t, :] = np.random.multivariate_normal(mean=mu_x, cov=sigma_x, size=1)
+    nu = np.random.normal(loc=0, scale=sd_y)
+    x[t, :] = np.random.multivariate_normal(mean=mu_x, cov=sigma_x)
 
     # Evolution
     E_1[t] = (
         tfm1__lambda_1 * E_1[t - 1] +
         tfm1__lambda_2 * E_2[t - 1] +
         tfm1__gamma_1 * x[t, 0] +
-        tfm1__gamma_2 * x[t-1, 0])
-    E_2[t] = E_1[t-1]
+        tfm1__gamma_2 * x[t - 1, 0])
+    E_2[t] = E_1[t - 1]
 
     # Evolution
     Z_1[t] = (
         tfm2__lambda_1 * Z_1[t - 1] +
         tfm2__lambda_2 * Z_2[t - 1] +
         tfm2__gamma_1 * x[t, 1] +
-        tfm2__gamma_2 * x[t-1, 1])
-    Z_2[t] = Z_1[t-1]
+        tfm2__gamma_2 * x[t - 1, 1])
+    Z_2[t] = Z_1[t - 1]
 
     # Observation
     y[t] = E_1[t] + Z_1[t] + nu
@@ -264,10 +264,10 @@ class TestMultipleTransferFunctionPolyRatio(unittest.TestCase):
             .dict_smooth.get("predictive")\
             .sort_values("t")
 
-        f = filter_predictive.f.values
-        fk = smooth_predictive.f.values
+        f = filter_predictive.f.to_numpy()
+        fk = smooth_predictive.f.to_numpy()
 
-        mse1 = np.mean((f-y)**2)
-        mse2 = np.mean((fk-y)**2)
+        mse1 = np.mean((f - y)**2)
+        mse2 = np.mean((fk - y)**2)
 
-        self.assertTrue(mse2/mse1 <= 1.0)
+        self.assertTrue(mse2 / mse1 <= 1.0)

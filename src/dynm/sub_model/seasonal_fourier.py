@@ -13,20 +13,23 @@ class SeasonalFourier():
                  seas_harm_components: list = None,
                  discount: float = .998,
                  W: np.ndarray = None):
-        """Define model.
+        """Define a Fourier seasonal block.
 
-        Define model with observation/system equations components \
-        and initial information for prior moments.
-
-        Parameters
-        ----------
-        m0 : np.ndarray
-            prior mean for state space components.
-        C0 : np.ndarray
-            prior covariance for state space components.
-        delta : float
-            discount factor.
-
+        Args:
+            m0 (np.ndarray):
+                Prior mean of the seasonal state.
+            C0 (np.ndarray):
+                Prior covariance of the seasonal state.
+            seas_period (int):
+                Seasonal period. Defaults to None.
+            seas_harm_components (list):
+                Harmonic indices included in the seasonal block.
+                Defaults to None.
+            discount (float):
+                Discount factor used when ``W`` is unknown.
+                Defaults to 0.998.
+            W (np.ndarray):
+                Optional known evolution covariance. Defaults to None.
         """
         self.nseas = 2 * len(seas_harm_components)
         self.seas_period = seas_period
@@ -46,6 +49,12 @@ class SeasonalFourier():
         self.G = self._build_G()
 
     def _build_F(self):
+        """Build the seasonal regression vector.
+
+        Returns:
+            np.ndarray:
+                Column vector with ones on cosine positions.
+        """
         seas_harm_components = self.seas_harm_components
 
         p = len(seas_harm_components)
@@ -57,6 +66,12 @@ class SeasonalFourier():
         return F.reshape(-1, 1)
 
     def _build_G(self):
+        """Build the Fourier evolution matrix.
+
+        Returns:
+            np.ndarray:
+                Block-diagonal rotation matrices per harmonic.
+        """
         seas_period = self.seas_period
         seas_harm_components = self.seas_harm_components
 
@@ -65,21 +80,47 @@ class SeasonalFourier():
         G = np.zeros([n, n])
 
         for j in range(p):
-            c = np.cos(2*np.pi*seas_harm_components[j] / seas_period)
-            s = np.sin(2*np.pi*seas_harm_components[j] / seas_period)
-            idx = 2*j
-            G[idx:(idx+2), idx:(idx+2)] = np.array([[c, s], [-s, c]])
+            c = np.cos(2 * np.pi * seas_harm_components[j] / seas_period)
+            s = np.sin(2 * np.pi * seas_harm_components[j] / seas_period)
+            idx = 2 * j
+            G[idx:(idx + 2), idx:(idx + 2)] = np.array([[c, s], [-s, c]])
 
         return G
 
     def _update_F(self, x: np.array = None):
+        """Return the current seasonal regression vector.
+
+        Args:
+            x (np.ndarray):
+                Unused covariate. Kept for interface consistency.
+
+        Returns:
+            np.ndarray:
+                Current ``F``.
+        """
         F = self.F
         return F
 
     def _build_P(self):
+        """Build the evolved prior covariance ``G C G.T``.
+
+        Returns:
+            np.ndarray:
+                Prior covariance of the evolved state.
+        """
         return self.G @ self.C @ self.G.T
 
     def _build_W(self, P: np.array):
+        """Build the evolution covariance.
+
+        Args:
+            P (np.ndarray):
+                Evolved prior covariance ``G C G.T``.
+
+        Returns:
+            np.ndarray:
+                Known ``W`` or a discounted estimate from ``P``.
+        """
         if self.estimate_W:
             W = _build_W_complete(mod=self, P=P)
         else:

@@ -3,31 +3,32 @@ import numpy as np
 
 
 def format_missing_keys_dict(missing_keys: dict):
-    """Remove 'W' or 'discount' from missing keys dictionary."""
-    if 'W' in missing_keys and 'discount' in missing_keys:
-        pass
-    else:
-        try:
-            missing_keys.remove('discount')
-        except Exception:
-            pass
+    """Drop optional ``W`` or ``discount`` from a missing-keys set.
 
-        try:
-            missing_keys.remove('W')
-        except Exception:
-            pass
+    Args:
+        missing_keys (dict):
+            Set of keys absent from a model dictionary.
+
+    Returns:
+        list:
+            Sorted remaining missing keys.
+    """
+    if not ('W' in missing_keys and 'discount' in missing_keys):
+        missing_keys.discard('discount')
+        missing_keys.discard('W')
     return sorted(missing_keys)
 
 
 def validate_polynomial_model_dict_keys(model_dict: dict):
-    """
-    Validate keys in a dictionary representing a polynomial model.
+    """Validate keys in a dictionary representing a polynomial model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
     Raises:
-        ValueError: If required keys are missing.
+        ValueError:
+            If required keys are missing.
     """
     user_keys = set(list(model_dict.keys()))
     expected_keys = {'m0', 'C0', 'ntrend', 'W', 'discount'}
@@ -45,14 +46,15 @@ def validate_polynomial_model_dict_keys(model_dict: dict):
 
 
 def validate_regression_model_dict_keys(model_dict: dict):
-    """
-    Validate keys in a dictionary representing a regression model.
+    """Validate keys in a dictionary representing a regression model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
     Raises:
-        ValueError: If required keys are missing.
+        ValueError:
+            If required keys are missing.
     """
     user_keys = set(list(model_dict.keys()))
     expected_keys = set(['m0', 'C0', 'nregn', 'discount', 'W'])
@@ -70,14 +72,15 @@ def validate_regression_model_dict_keys(model_dict: dict):
 
 
 def validate_seasonal_model_dict_keys(model_dict: dict):
-    """
-    Validate keys in a dictionary representing a seasonal model.
+    """Validate keys in a dictionary representing a seasonal model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
     Raises:
-        ValueError: If required keys are missing.
+        ValueError:
+            If required keys are missing.
     """
     user_keys = set(list(model_dict.keys()))
     expected_keys = set(['m0', 'C0', 'seas_period',
@@ -96,14 +99,15 @@ def validate_seasonal_model_dict_keys(model_dict: dict):
 
 
 def validate_transfer_function_model_dict_keys(model_dict: dict):
-    """
-    Validate keys in a dictionary representing a transfer function model.
+    """Validate keys in a dictionary representing a transfer function model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
     Raises:
-        ValueError: If required keys are missing.
+        ValueError:
+            If required keys are missing.
     """
     user_keys = set(list(model_dict.keys()))
     expected_keys = set(['m0', 'C0', 'ntfm',
@@ -123,14 +127,15 @@ def validate_transfer_function_model_dict_keys(model_dict: dict):
 
 
 def validate_autoregressive_model_dict_keys(model_dict: dict):
-    """
-    Validate keys in a dictionary representing an autoregressive model.
+    """Validate keys in a dictionary representing an autoregressive model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
     Raises:
-        ValueError: If required keys are missing.
+        ValueError:
+            If required keys are missing.
     """
     user_keys = set(list(model_dict.keys()))
     expected_keys = set(['m0', 'C0', 'order', 'discount', 'W'])
@@ -148,18 +153,19 @@ def validate_autoregressive_model_dict_keys(model_dict: dict):
 
 
 def validate_model_dict_polynomial_mean_array(model_dict: dict):
-    """
-    Validate prior mean array shape for polynomial model.
+    """Validate prior mean array shape for polynomial model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'ntrend''}.
+            Required keys: {'m0', 'C0', 'ntrend'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If prior mean array and ntrend are incompatible.
+        ValueError:
+            If prior mean array and ntrend are incompatible.
     """
     ntrend = model_dict.get('ntrend')
     m0 = model_dict.get('m0')
@@ -173,18 +179,19 @@ def validate_model_dict_polynomial_mean_array(model_dict: dict):
 
 
 def validate_model_dict_regression_mean_array(model_dict: dict):
-    """
-    Validate prior mean array shape for regression model.
+    """Validate prior mean array shape for regression model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'nregn'}.
+            Required keys: {'m0', 'C0', 'nregn'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If prior mean array and nregn are incompatible.
+        ValueError:
+            If prior mean array and nregn are incompatible.
     """
     nregn = model_dict.get('nregn')
     m0 = model_dict.get('m0')
@@ -198,19 +205,20 @@ def validate_model_dict_regression_mean_array(model_dict: dict):
 
 
 def validate_model_dict_seasonal_mean_array(model_dict: dict):
-    """
-    Validate prior mean array shape for seasonal model.
+    """Validate prior mean array shape for seasonal model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'seas_period',
+            Required keys: {'m0', 'C0', 'seas_period',
                               'seas_harm_components'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If prior mean array and seas_harm_components are
+        ValueError:
+            If prior mean array and seas_harm_components are
             incompatible.
     """
     seas_harm_components = model_dict.get('seas_harm_components')
@@ -227,19 +235,20 @@ def validate_model_dict_seasonal_mean_array(model_dict: dict):
 
 
 def validate_model_dict_transfer_function_mean_array(model_dict: dict):
-    """
-    Validate prior mean array shape for transfer function model.
+    """Validate prior mean array shape for transfer function model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'lambda_order',
+            Required keys: {'m0', 'C0', 'lambda_order',
                               'gamma_order', 'ntfm'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If prior mean array and model parameters are incompatible.
+        ValueError:
+            If prior mean array and model parameters are incompatible.
     """
     gamma_order = model_dict.get('gamma_order')
     lambda_order = model_dict.get('lambda_order')
@@ -257,18 +266,19 @@ def validate_model_dict_transfer_function_mean_array(model_dict: dict):
 
 
 def validate_model_dict_autoregressive_mean_array(model_dict: dict):
-    """
-    Validate prior mean array shape for autoregressive model.
+    """Validate prior mean array shape for autoregressive model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'order'}.
+            Required keys: {'m0', 'C0', 'order'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If prior mean array and model parameters are incompatible.
+        ValueError:
+            If prior mean array and model parameters are incompatible.
     """
     order = model_dict.get('order')
     nparams = 2 * order
@@ -283,18 +293,19 @@ def validate_model_dict_autoregressive_mean_array(model_dict: dict):
 
 
 def validate_model_dict_polynomial_covariance_matrix(model_dict: dict):
-    """
-    Validate prior covariance matrix shape for polynomial model.
+    """Validate prior covariance matrix shape for polynomial model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'ntrend''}.
+            Required keys: {'m0', 'C0', 'ntrend'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If prior covariance matrix and ntrend are incompatible.
+        ValueError:
+            If prior covariance matrix and ntrend are incompatible.
     """
     ntrend = model_dict.get('ntrend')
     C0 = model_dict.get('C0')
@@ -308,18 +319,19 @@ def validate_model_dict_polynomial_covariance_matrix(model_dict: dict):
 
 
 def validate_model_dict_regression_covariance_matrix(model_dict: dict):
-    """
-    Validate prior covariance matrix shape for regression model.
+    """Validate prior covariance matrix shape for regression model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'nregn'}.
+            Required keys: {'m0', 'C0', 'nregn'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If prior covariance matrix and nregn are incompatible.
+        ValueError:
+            If prior covariance matrix and nregn are incompatible.
     """
     nregn = model_dict.get('nregn')
     C0 = model_dict.get('C0')
@@ -333,20 +345,21 @@ def validate_model_dict_regression_covariance_matrix(model_dict: dict):
 
 
 def validate_model_dict_seasonal_covariance_matrix(model_dict: dict):
-    """
-    Validate prior covariance matrix shape for seasonal model.
+    """Validate prior covariance matrix shape for seasonal model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'seas_period',
+            Required keys: {'m0', 'C0', 'seas_period',
                               'seas_harm_components'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If prior covariance matrix and seas_harm_components
-        are incompatible.
+        ValueError:
+            If prior covariance matrix and seas_harm_components
+            are incompatible.
     """
     seas_harm_components = model_dict.get('seas_harm_components')
     nseas = 2 * len(seas_harm_components)
@@ -362,20 +375,21 @@ def validate_model_dict_seasonal_covariance_matrix(model_dict: dict):
 
 
 def validate_model_dict_transfer_function_covariance_matrix(model_dict: dict):
-    """
-    Validate prior covariance matrix shape for transfer function model.
+    """Validate prior covariance matrix shape for transfer function model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'seas_period',
-                              'seas_harm_components'}.
+            Required keys: {'m0', 'C0', 'lambda_order',
+                              'gamma_order', 'ntfm'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If prior covariance matrix and seas_harm_components
-        are incompatible.
+        ValueError:
+            If prior covariance matrix and ntfm, gamma_order,
+            and lambda_order are incompatible.
     """
     gamma_order = model_dict.get('gamma_order')
     lambda_order = model_dict.get('lambda_order')
@@ -393,18 +407,19 @@ def validate_model_dict_transfer_function_covariance_matrix(model_dict: dict):
 
 
 def validate_model_dict_autoregressive_covariance_matrix(model_dict: dict):
-    """
-    Validate prior covariance matrix shape for autoregressive model.
+    """Validate prior covariance matrix shape for autoregressive model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'order'}.
+            Required keys: {'m0', 'C0', 'order'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If prior mean array and model parameters are incompatible.
+        ValueError:
+            If prior covariance matrix and order are incompatible.
     """
     order = model_dict.get('order')
     nparams = 2 * order
@@ -419,19 +434,20 @@ def validate_model_dict_autoregressive_covariance_matrix(model_dict: dict):
 
 
 def validate_model_dict_polynomial_discount_array(model_dict: dict):
-    """
-    Validate declared discount factor for polynomial model.
+    """Validate declared discount factor for polynomial model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'ntrend''}.
+            Required keys: {'m0', 'C0', 'ntrend'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If the discount factor is not a scalar or falls
-        outside the [0, 1] interval.
+        ValueError:
+            If the discount factor is not a scalar or falls
+            outside the [0, 1] interval.
     """
     discount = model_dict.get('discount')
 
@@ -451,19 +467,20 @@ def validate_model_dict_polynomial_discount_array(model_dict: dict):
 
 
 def validate_model_dict_regression_discount_array(model_dict: dict):
-    """
-    Validate declared discount factor for regression model.
+    """Validate declared discount factor for regression model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'nregn'}.
+            Required keys: {'m0', 'C0', 'nregn'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If the discount factor is not a scalar or falls
-        outside the [0, 1] interval.
+        ValueError:
+            If the discount factor is not a scalar or falls
+            outside the [0, 1] interval.
     """
     discount = model_dict.get('discount')
 
@@ -483,19 +500,21 @@ def validate_model_dict_regression_discount_array(model_dict: dict):
 
 
 def validate_model_dict_seasonal_discount_array(model_dict: dict):
-    """
-    Validate declared discount factor for seasonal model.
+    """Validate declared discount factor for seasonal model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'nregn'}.
+            Required keys: {'m0', 'C0', 'seas_period',
+                              'seas_harm_components'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If the discount factor is not a scalar or falls
-        outside the [0, 1] interval.
+        ValueError:
+            If the discount factor is not a scalar or falls
+            outside the [0, 1] interval.
     """
     discount = model_dict.get('discount')
 
@@ -515,21 +534,22 @@ def validate_model_dict_seasonal_discount_array(model_dict: dict):
 
 
 def validate_model_dict_transfer_function_discount_array(model_dict: dict):
-    """
-    Validate declared discount factor for transfer function model.
+    """Validate declared discount factor for transfer function model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'lambda_order',
+            Required keys: {'m0', 'C0', 'lambda_order',
                               'gamma_order', 'ntfm'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If the discount array is incompatible with the model
-        parameters, or if any element in the discount array falls outside
-        the [0, 1] interval.
+        ValueError:
+            If the discount array is incompatible with the model
+            parameters, or if any element in the discount array
+            falls outside the [0, 1] interval.
     """
     gamma_order = model_dict.get('gamma_order')
     lambda_order = model_dict.get('lambda_order')
@@ -558,20 +578,21 @@ def validate_model_dict_transfer_function_discount_array(model_dict: dict):
 
 
 def validate_model_dict_autoregressive_discount_array(model_dict: dict):
-    """
-    Validate declared discount factor for autoregressive model.
+    """Validate declared discount factor for autoregressive model.
 
     Args:
-        model_dict (dict): Dictionary containing model keys.
+        model_dict (dict):
+            Model dictionary with prior moments and definition keys.
 
-            Obrigatory keys: {'m0', 'C0', 'order'}.
+            Required keys: {'m0', 'C0', 'order'}.
 
             Optional keys (choose one): {'W', 'discount'}.
 
     Raises:
-        ValueError: If the discount array is incompatible with the model
-        parameters, or if any element in the discount array falls outside
-        the [0, 1] interval.
+        ValueError:
+            If the discount array is incompatible with the model
+            parameters, or if any element in the discount array
+            falls outside the [0, 1] interval.
     """
     order = model_dict.get('order')
     nparams = 2 * order
@@ -598,17 +619,17 @@ def validate_model_dict_autoregressive_discount_array(model_dict: dict):
 
 
 def validate_input_dict(mod, X: dict):
-    """
-    Validate input dictionary against model parameters.
+    """Validate input dictionary against model parameters.
 
-    Parameters:
-    - mod: Bayesian Dynamic Model object.
-    - X (dict): Dictionary containing input data for regression
-      and transfer function models.
+    Args:
+        mod:
+            Fitted Bayesian dynamic model.
+        X (dict):
+            Optional ``regression`` and ``transfer_function`` arrays.
 
     Raises:
-    - ValueError: If the input data is None or has an incompatible shape
-      with the declared model parameters.
+        ValueError:
+            If required inputs are missing or have the wrong shape.
     """
     nregn = mod.dlm.regression_model.nregn
     ntfm = mod.dnm.transfer_function_model.ntfm

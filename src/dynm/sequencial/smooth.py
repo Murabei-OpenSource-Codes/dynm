@@ -1,29 +1,25 @@
 """Smoothing for Dynamic Linear Models."""
 import numpy as np
-from dynm.utils.format_result import _build_predictive_df, _build_posterior_df
+from dynm.utils.format_result import build_predictive_df, build_posterior_df
 from dynm.utils.format_input import set_X_dict
 
 
-def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
-    """Perform backward smoother.
+def backward_smoother(mod, X: dict = {}, level: float = 0.05):
+    """Run the backward smoother on filtered state moments.
 
-    That is, obtain the smoothing moments of the one-step ahead predictive
-    distribution and state space posterior distribution.
+    Args:
+        mod:
+            Fitted model with ``dict_state_params`` and
+            ``dict_state_evolution``.
+        X (dict):
+            Optional regressor and transfer-function inputs.
+        level (float):
+            Tail probability for credible intervals. Defaults to 0.05.
 
-    Parameters
-    ----------
-    dict_state_parms : dict
-        dictionary with the posterior (m and C) and prior (a and R) moments
-        for the state space parameters along time.
-
-    Returns
-    -------
-    List: It contains the following components:
-        - `df_predictive_smooth`: pd.DataFrame with the smoothing moments
-        of predictive distribution.
-
-        - `df_posterior_smooth`: pd.DataFrame with the smoothing moments
-        of posterior state space distribution.
+    Returns:
+        dict:
+            Smoothed predictive and posterior tables plus the raw
+            smoother moments.
     """
     nobs = len(mod.dict_state_params.get('a'))
     copy_X = set_X_dict(mod=mod, nobs=nobs, X=X)
@@ -39,13 +35,13 @@ def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
 
     # Dictionaty to save predictive and posterior parameters
     Xk = {'regression': [], 'transfer_function': []}
-    Xk['regression'] = copy_X['regression'][nobs-1, :]
-    Xk['transfer_function'] = copy_X['transfer_function'][nobs-1, :]
+    Xk['regression'] = copy_X['regression'][nobs - 1, :]
+    Xk['transfer_function'] = copy_X['transfer_function'][nobs - 1, :]
 
     FT = mod._build_F(x=Xk['regression'])
 
-    ak = m[nobs-1]
-    Rk = C[nobs-1]
+    ak = m[nobs - 1]
+    Rk = C[nobs - 1]
     fk = FT.T @ ak
     qk = (FT.T @ Rk @ FT).round(10)
     dict_smooth_params = {
@@ -57,19 +53,20 @@ def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
 
     # Perform smoothing
     for k in range(1, nobs):
-        Xk['regression'] = copy_X['regression'][nobs-k-1, :]
-        Xk['transfer_function'] = copy_X['transfer_function'][nobs-k-1, :, :]
+        Xk['regression'] = copy_X['regression'][nobs - k - 1, :]
+        Xk['transfer_function'] = (
+            copy_X['transfer_function'][nobs - k - 1, :, :])
 
         Fk = mod._build_F(x=Xk['regression'])
-        Gk = G[nobs-k]
+        Gk = G[nobs - k]
 
         # B_{t-k}
-        B_t_k = C[nobs-k-1] @ Gk.T @ np.linalg.pinv(
-            R[nobs-k], rcond=1e-10, hermitian=True)
+        B_t_k = C[nobs - k - 1] @ Gk.T @ np.linalg.pinv(
+            R[nobs - k], rcond=1e-10, hermitian=True)
 
         # a_t(-k) and R_t(-k)
-        ak = m[nobs-k-1] + B_t_k @ (ak - a[nobs-k])
-        Rk = C[nobs-k-1] + B_t_k @ (Rk - R[nobs-k]) @ B_t_k.T
+        ak = m[nobs - k - 1] + B_t_k @ (ak - a[nobs - k])
+        Rk = C[nobs - k - 1] + B_t_k @ (Rk - R[nobs - k]) @ B_t_k.T
 
         # f_t(-k) and q_t(-k)
         fk = Fk.T @ ak
@@ -80,17 +77,17 @@ def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
         dict_smooth_params["R"].append(Rk)
         dict_smooth_params["f"].append(fk.item())
         dict_smooth_params["q"].append(qk.item())
-        dict_smooth_params["t"].append(nobs-k)
+        dict_smooth_params["t"].append(nobs - k)
 
     # Organize the predictive smooth parameters
     dict_filter = {key: dict_smooth_params[key] for key in (
         dict_smooth_params.keys() & {"t", "f", "q", "df"})}
 
     # Get posterior and predictive dataframes
-    df_predictive = _build_predictive_df(
+    df_predictive = build_predictive_df(
         mod=mod, dict_predict=dict_filter, level=level)
 
-    df_posterior = _build_posterior_df(
+    df_posterior = build_posterior_df(
         mod=mod,
         dict_posterior=dict_smooth_params,
         entry_m="a",

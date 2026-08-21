@@ -12,23 +12,20 @@ class DynamicNonLinearModel():
     """Class for definition of dynamic non-linear model structural block."""
 
     def __init__(self, model_dict: dict, V: float = None):
-        """Define model.
+        """Define the dynamic non-linear model.
 
-        Define model with system equations components \
-        and initial information for prior moments.
+        Args:
+            model_dict (dict):
+                Prior moments and definition parameters for each
+                structural block: transfer function and autoregressive.
+            V (float):
+                Optional known observational variance. Defaults to None.
 
-        Parameters
-        ----------
-        model_dict : dict
-            Dictionary containing prior moments and other model definition \
-            parameters for each structural block: transfer function and \
-            autoregressive.
-
-            Each structural block should be identified by its label and \
-            should have the following parameters:
+        Each structural block should be identified by its label and
+        should have the following parameters:
 
             transfer_function:
-                Obligatory keys: {'m0', 'C0', 'ntfm',
+                Required keys: {'m0', 'C0', 'ntfm',
                                   'lambda_order', 'gamma_order'}.
 
                 Optional keys (choose one): {'W', 'discount'}.
@@ -54,7 +51,7 @@ class DynamicNonLinearModel():
                    Choose either 'W' or 'discount'.
 
             autoregressive:
-                Obligatory keys: {'m0', 'C0', 'order'}.
+                Required keys: {'m0', 'C0', 'order'}.
 
                 Optional keys (choose one): {'W', 'discount'}.
 
@@ -101,13 +98,11 @@ class DynamicNonLinearModel():
         self._set_parameters_name()
 
     def _validate_model_dict_keys(self):
-        """
-        Validate keys in the model dictionary.
+        """Validate keys in the model dictionary.
 
-        Raises
-        ------
-        ValueError
-            If required keys are missing.
+        Raises:
+            ValueError:
+                If required keys are missing.
         """
         tf_model_dict = self.model_dict.get('transfer_function')
         ar_model_dict = self.model_dict.get('autoregressive')
@@ -121,13 +116,11 @@ class DynamicNonLinearModel():
                 model_dict=ar_model_dict)
 
     def _validate_model_dict_mean_array(self):
-        """
-        Validate mean array in the model dictionary.
+        """Validate mean array in the model dictionary.
 
-        Raises
-        ------
-        ValueError
-            If prior mean arrays are incorrect.
+        Raises:
+            ValueError:
+                If prior mean arrays are incorrect.
         """
         tf_model_dict = self.model_dict.get('transfer_function')
         ar_model_dict = self.model_dict.get('autoregressive')
@@ -141,13 +134,11 @@ class DynamicNonLinearModel():
                 model_dict=ar_model_dict)
 
     def _validate_model_dict_cov_matrix(self):
-        """
-        Validate covariance matrix in the model dictionary.
+        """Validate covariance matrix in the model dictionary.
 
-        Raises
-        ------
-        ValueError
-            If prior covariance matrices are incorrect.
+        Raises:
+            ValueError:
+                If prior covariance matrices are incorrect.
         """
         tf_model_dict = self.model_dict.get('transfer_function')
         ar_model_dict = self.model_dict.get('autoregressive')
@@ -161,15 +152,13 @@ class DynamicNonLinearModel():
                 model_dict=ar_model_dict)
 
     def _validate_model_dict_discount(self):
-        """
-        Validate discount in the model dictionary.
+        """Validate discount in the model dictionary.
 
-        Raises
-        ------
-        ValueError
-            If the discount array is incompatible with the model
-            parameters, or if any element in the discount array falls outside
-            the [0, 1] interval.
+        Raises:
+            ValueError:
+                If the discount array is incompatible with the model
+                parameters, or if any element in the discount array
+                falls outside the [0, 1] interval.
         """
         tf_model_dict = self.model_dict.get('transfer_function')
         ar_model_dict = self.model_dict.get('autoregressive')
@@ -183,7 +172,7 @@ class DynamicNonLinearModel():
                 model_dict=ar_model_dict)
 
     def _set_submodels(self):
-        """Set submodels based on the model dictionary."""
+        """Instantiate autoregressive and transfer-function blocks."""
         if self.model_dict.get('autoregressive') is not None:
             submod_dict = self.model_dict.get('autoregressive')
             autoregressive = AutoRegressive(
@@ -212,6 +201,7 @@ class DynamicNonLinearModel():
         self.transfer_function_model = transfer_function
 
     def _set_gamma_distribution_parameters(self):
+        """Set observational-variance gamma parameters ``n``, ``d``, ``s``."""
         self.n = 1
         self.t = 0
 
@@ -230,31 +220,31 @@ class DynamicNonLinearModel():
             self.v = self.s
 
     def _concatenate_regression_vector(self):
-        """Concatenate regression vectors."""
+        """Stack submodel regression vectors into ``F``."""
         self.F = np.vstack((self.autoregressive_model.F,
                             self.transfer_function_model.F))
 
     def _concatenate_evolution_matrix(self):
-        """Concatenate equation evolution matrices."""
+        """Block-diagonalise submodel evolution matrices into ``G``."""
         self.G = block_diag(self.autoregressive_model.G,
                             self.transfer_function_model.G)
 
     def _concatenate_prior_mean(self):
-        """Concatenate prior means vectors."""
+        """Stack submodel prior means into ``a`` and ``m``."""
         self.a = np.vstack((self.autoregressive_model.m,
                             self.transfer_function_model.m))
         self.m = np.vstack((self.autoregressive_model.m,
                             self.transfer_function_model.m))
 
     def _concatenate_prior_covariance_matrix(self):
-        """Concatenate prior covariance matrices."""
+        """Block-diagonalise prior covariances into ``R`` and ``C``."""
         self.R = block_diag(self.autoregressive_model.C,
                             self.transfer_function_model.C)
         self.C = block_diag(self.autoregressive_model.C,
                             self.transfer_function_model.C)
 
     def _set_submodels_block_index(self):
-        """Set block indices for submodels."""
+        """Store index slices and grids for each DNM submodel."""
         nparams_autoregressive = len(self.autoregressive_model.m)
         nparams_transfer_function = len(self.transfer_function_model.m)
 
@@ -278,25 +268,25 @@ class DynamicNonLinearModel():
         }
 
     def _set_parameters_name(self):
-        """Set parameter names."""
+        """Assign names to DNM state components."""
         ar__response_labels = \
-            ['xi_' + str(i+1)
+            ['xi_' + str(i + 1)
              for i in range(self.autoregressive_model.order)]
 
         ar__decay_labels = \
-            ['phi_' + str(i+1)
+            ['phi_' + str(i + 1)
              for i in range(self.autoregressive_model.order)]
 
         tf__response_labels = \
-            ['E_' + str(i+1)
+            ['E_' + str(i + 1)
              for i in range(self.transfer_function_model.lambda_order)]
 
         tf__decay_labels = \
-            ['lambda_' + str(i+1)
+            ['lambda_' + str(i + 1)
              for i in range(self.transfer_function_model.lambda_order)]
 
         pulse_labels = \
-            ['gamma_' + str(i+1)
+            ['gamma_' + str(i + 1)
              for i in range(self.transfer_function_model.gamma_order)]
 
         names_parameters = (
@@ -308,7 +298,12 @@ class DynamicNonLinearModel():
         self.names_parameters = names_parameters
 
     def _build_F(self):
-        """Build regression vector."""
+        """Build the stacked DNM regression vector.
+
+        Returns:
+            np.ndarray:
+                Column vector concatenating AR and TF ``F``.
+        """
         F = np.vstack((
             self.autoregressive_model.F,
             self.transfer_function_model.F))
@@ -316,7 +311,16 @@ class DynamicNonLinearModel():
         return F
 
     def _build_G(self, x: np.array):
-        """Build system equation evolution matrix."""
+        """Build the stacked DNM evolution matrix.
+
+        Args:
+            x (np.ndarray):
+                Transfer-function covariates at the current time.
+
+        Returns:
+            np.ndarray:
+                Block-diagonal ``G``.
+        """
         G_ar = self.autoregressive_model._build_G()
         G_tf = self.transfer_function_model._build_G(x=x)
 
@@ -325,7 +329,12 @@ class DynamicNonLinearModel():
         return G
 
     def _build_W(self):
-        """Build process noise covariance matrix."""
+        """Build the stacked DNM evolution covariance.
+
+        Returns:
+            np.ndarray:
+                Block-diagonal ``W``.
+        """
         P_ar = self.autoregressive_model._build_P()
         P_tf = self.transfer_function_model._build_P()
 
@@ -337,6 +346,12 @@ class DynamicNonLinearModel():
         return W
 
     def _build_h(self):
+        """Build the stacked nonlinear offset.
+
+        Returns:
+            np.ndarray:
+                Column vector concatenating AR and TF ``h``.
+        """
         h_ar = self.autoregressive_model._build_h()
         h_tf = self.transfer_function_model._build_h()
 
@@ -345,7 +360,7 @@ class DynamicNonLinearModel():
         return h
 
     def _update_submodels_F(self):
-        """Update regression vector for each submodel."""
+        """Copy stacked ``F`` slices back to each submodel."""
         idx_ar = self.model_index_dict.get('autoregressive')
         idx_tf = self.model_index_dict.get('transfer_function')
 
@@ -353,7 +368,7 @@ class DynamicNonLinearModel():
         self.transfer_function_model.F = self.F[idx_tf]
 
     def _update_submodels_G(self):
-        """Update system equation evolution matrices for each submodel."""
+        """Copy stacked ``G`` blocks back to each submodel."""
         grid_ar_x, grid_ar_y = self.grid_index_dict.get('autoregressive')
         grid_tf_x, grid_tf_y = self.grid_index_dict.get('transfer_function')
 
@@ -361,7 +376,7 @@ class DynamicNonLinearModel():
         self.transfer_function_model.G = self.G[grid_tf_x, grid_tf_y]
 
     def _update_submodels_moments(self):
-        """Update prior moments for each submodel."""
+        """Copy stacked ``m`` and ``C`` back to each submodel."""
         idx_ar = self.model_index_dict.get('autoregressive')
         idx_tf = self.model_index_dict.get('transfer_function')
 

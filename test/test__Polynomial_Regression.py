@@ -20,11 +20,11 @@ beta2 = 3
 np.random.seed(1111)
 for t in range(1, nobs):
     # Random errors
-    nu = np.random.normal(loc=0, scale=sd_y, size=1)
+    nu = np.random.normal(loc=0, scale=sd_y)
 
     # Input
-    x[t, 0] = np.random.normal(loc=0, scale=1, size=1)
-    x[t, 1] = np.random.normal(loc=0, scale=1, size=1)
+    x[t, 0] = np.random.normal(loc=0, scale=1)
+    x[t, 1] = np.random.normal(loc=0, scale=1)
 
     # Observation
     y[t] = beta0 + beta1 * x[t, 0] + beta2 * x[t, 1] + nu
@@ -200,13 +200,13 @@ class TestPolynomialandRegression(unittest.TestCase):
             .dict_smooth.get("predictive")\
             .sort_values("t")
 
-        f = filter_predictive.f.values
-        fk = smooth_predictive.f.values
+        f = filter_predictive.f.to_numpy()
+        fk = smooth_predictive.f.to_numpy()
 
-        mse1 = np.mean((f-y)**2)
-        mse2 = np.mean((fk-y)**2)
+        mse1 = np.mean((f - y)**2)
+        mse2 = np.mean((fk - y)**2)
 
-        self.assertTrue(mse2/mse1 <= 1.0)
+        self.assertTrue(mse2 / mse1 <= 1.0)
 
     def test__invalid_model_dict_ntrend_missing(self):
         """Test incorrect model dict missing ntrend argument."""

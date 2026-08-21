@@ -19,7 +19,7 @@ theta[0, :] = np.array([10, 1, .25, 1, .25])
 np.random.seed(1111)
 for t in range(1, nobs):
     # Random errors
-    nu = np.random.normal(loc=0, scale=sd_y, size=1)
+    nu = np.random.normal(loc=0, scale=sd_y)
 
     # Regression vector
     F = np.array([1, 1, 0, 1, 0]).T
@@ -32,7 +32,7 @@ for t in range(1, nobs):
                       [0.,  0., -0.8660254,  0.5]])
     G = block_diag(Gtrend, Gseas)
 
-    theta[t] = G @ theta[t-1]
+    theta[t] = G @ theta[t - 1]
 
     # Observation
     y[t] = F.T @ theta[t] + nu
@@ -204,13 +204,13 @@ class TestPolynomialandSeasonal(unittest.TestCase):
             .dict_smooth.get("predictive")\
             .sort_values("t")
 
-        f = filter_predictive.f.values
-        fk = smooth_predictive.f.values
+        f = filter_predictive.f.to_numpy()
+        fk = smooth_predictive.f.to_numpy()
 
-        mse1 = np.mean((f-y)**2)
-        mse2 = np.mean((fk-y)**2)
+        mse1 = np.mean((f - y)**2)
+        mse2 = np.mean((fk - y)**2)
 
-        self.assertTrue(mse2/mse1 <= 1.0)
+        self.assertTrue(mse2 / mse1 <= 1.0)
 
     def test__invalid_model_dict_missing_keys(self):
         """Test incorrect model dict missing arguments."""

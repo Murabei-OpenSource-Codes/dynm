@@ -1,8 +1,8 @@
 """Filtering for Dynamic Linear Models."""
 import numpy as np
 import pandas as pd
-from dynm.utils.format_result import _build_predictive_df, _build_posterior_df
-from dynm.utils.format_result import _build_variance_df
+from dynm.utils.format_result import build_predictive_df, build_posterior_df
+from dynm.utils.format_result import build_variance_df
 from dynm.utils.format_input import set_X_dict
 
 
@@ -10,20 +10,22 @@ def _foward_filter(mod,
                    y: np.ndarray,
                    X: dict = {},
                    level: float = 0.05):
-    """Short summary.
+    """Run the forward Kalman filter over the series.
 
-    Parameters
-    ----------
-    y : np.ndarray
-        Description of parameter `y`.
-    x : np.ndarray
-        Description of parameter `x`.
+    Args:
+        mod:
+            Model instance updated in place at each time.
+        y (np.ndarray):
+            Observations of length ``nobs``.
+        X (dict):
+            Optional regressor and transfer-function inputs.
+        level (float):
+            Tail probability for credible intervals. Defaults to 0.05.
 
-    Returns
-    -------
-    type
-        Description of returned object.
-
+    Returns:
+        dict:
+            Filter tables, state moments, evolution matrices, and the
+            fitted model.
     """
     nobs = len(y)
 
@@ -44,7 +46,7 @@ def _foward_filter(mod,
         mod._update(y=y[t], X=Xt)
 
         # Dict 1steap forecast
-        dict_1step_forecast['t'].append(t+1)
+        dict_1step_forecast['t'].append(t + 1)
         dict_1step_forecast['y'].append(y[t])
         dict_1step_forecast['f'].append(mod.f)
         dict_1step_forecast['q'].append(mod.q)
@@ -59,16 +61,16 @@ def _foward_filter(mod,
         dict_state_evolution['G'].append(mod.G)
 
         # Observational variance
-        dict_observation_var['t'].append(t+1)
+        dict_observation_var['t'].append(t + 1)
         dict_observation_var['d'].append(np.ravel(mod.d)[0])
         dict_observation_var['n'].append(np.ravel(mod.n)[0])
         dict_observation_var['mean'].append(np.ravel(mod.s)[0])
 
     # Get posterior and predictive dataframes
-    df_predictive = _build_predictive_df(
+    df_predictive = build_predictive_df(
         mod=mod, dict_predict=dict_1step_forecast, level=level)
 
-    df_posterior = _build_posterior_df(
+    df_posterior = build_posterior_df(
         mod=mod,
         dict_posterior=dict_state_params,
         entry_m="m",
@@ -76,7 +78,7 @@ def _foward_filter(mod,
         t=nobs,
         level=level)
 
-    df_var = _build_variance_df(
+    df_var = build_variance_df(
         mod=mod,
         dict_observation_var=dict_observation_var,
         level=level)

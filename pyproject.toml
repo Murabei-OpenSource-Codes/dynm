@@ -1,6 +1,6 @@
 [project]
 name = "dynm"
-version = "0.0.4"
+version = "0.0.3-b.0"
 description = "Bayesian Dynamic Models."
 readme = "README.md"
 requires-python = ">=3.6"
@@ -62,7 +62,7 @@ select = [
 # Os códigos de erros colocados aqui são ignorados pelo linter. O erro abaixo é em relação ao assert. Está comentado por padrão.
 ignore = [
   # "S101" # Use of `assert` detected
-  "E402", "N806", "I001"
+  "E402", "N806", "I001", "N816", "N802", "N803"
 ]
 
 # ativa um modo plus do ruff

@@ -6,7 +6,7 @@ from scipy.linalg import block_diag
 
 
 class TransferFunction():
-    """Class for fitting, forecast and update dynamic linear models."""
+    """Transfer-function block in state-space form."""
 
     def __init__(self,
                  m0: np.ndarray,
@@ -16,20 +16,24 @@ class TransferFunction():
                  ntfm: int,
                  discount: np.ndarray = None,
                  W: np.ndarray = None):
-        """Define model.
+        """Define a transfer-function block.
 
-        Define model with observation/system equations components \
-        and initial information for prior moments.
-
-        Parameters
-        ----------
-        m0 : np.ndarray
-            prior mean for state space components.
-        C0 : np.ndarray
-            prior covariance for state space components.
-        delta : float
-            discount factor.
-
+        Args:
+            m0 (np.ndarray):
+                Prior mean of the transfer-function state.
+            C0 (np.ndarray):
+                Prior covariance of the transfer-function state.
+            gamma_order (int):
+                Order of the pulse (input) polynomial.
+            lambda_order (int):
+                Order of the decay (output) polynomial.
+            ntfm (int):
+                Number of transfer-function series.
+            discount (np.ndarray):
+                Discount vector used when ``W`` is unknown.
+                Defaults to None.
+            W (np.ndarray):
+                Optional known evolution covariance. Defaults to None.
         """
         self.gamma_order = gamma_order
         self.lambda_order = lambda_order
@@ -64,6 +68,12 @@ class TransferFunction():
         self.G = self._build_G(x=np.zeros([ntfm, self.gamma_order]))
 
     def _build_F(self):
+        """Build the stacked transfer-function regression vector.
+
+        Returns:
+            np.ndarray:
+                Column vector with a leading one in each series block.
+        """
         F = np.array([])
 
         for i in range(self.ntfm):
@@ -75,6 +85,16 @@ class TransferFunction():
         return F.reshape(-1, 1)
 
     def _build_G(self, x: np.array):
+        """Build the transfer-function evolution matrix.
+
+        Args:
+            x (np.ndarray):
+                Pulse inputs with shape ``(ntfm, gamma_order)``.
+
+        Returns:
+            np.ndarray:
+                Block-diagonal evolution matrix.
+        """
         m = self.m
         lambda_order = self.lambda_order
         ntfm = self.ntfm
@@ -92,7 +112,7 @@ class TransferFunction():
 
             Hn = np.zeros([Gi.shape[0], self.gamma_order])
             for o in range(self.gamma_order):
-                xn = np.ravel(x[n, o])
+                xn = np.ravel(x[n, o])[0]
                 Hn[0, o] = xn
 
             In = np.identity(self.gamma_order)
@@ -102,6 +122,12 @@ class TransferFunction():
         return G
 
     def _build_h(self):
+        """Build the nonlinear offset for the transfer-function evolution.
+
+        Returns:
+            np.ndarray:
+                Offset ``h`` such that ``a = G m + h``.
+        """
         ntfm = self.ntfm
         G_ = copy.deepcopy(self.G)
 
@@ -116,9 +142,25 @@ class TransferFunction():
         return h
 
     def _build_P(self):
+        """Build the evolved prior covariance ``G C G.T``.
+
+        Returns:
+            np.ndarray:
+                Prior covariance of the evolved state.
+        """
         return self.G @ self.C @ self.G.T
 
     def _build_W(self, P: np.array):
+        """Build the evolution covariance.
+
+        Args:
+            P (np.ndarray):
+                Evolved prior covariance ``G C G.T``.
+
+        Returns:
+            np.ndarray:
+                Known ``W`` or a discounted estimate from ``P``.
+        """
         if self.estimate_W:
             W = _build_W_diagonal(mod=self, P=P)
 
