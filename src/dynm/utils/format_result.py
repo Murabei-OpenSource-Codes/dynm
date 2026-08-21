@@ -9,47 +9,40 @@ def tidy_parameters(dict_parameters: dict, entry_m: str, entry_v: str,
                     names_parameters: List,
                     index_seas_parameters: List = None,
                     F: np.ndarray = None):
-    """Transform state space moments from a dict to a long DataFrame.
+    """Transform state-space moments from a dict to a long DataFrame.
 
-    Parameters
-    ----------
-    dict_parameters : dict
-        A dictionary with the posterior (m and C) and prior (a and R) moments
-        for the state space parameters along time.
-    entry_m : str
-        An entry name in the `dict_parameters` of mean vector of
-        state space parameters.
-    entry_v : str
-        An entry name in the `dict_parameters` of covariance matrix of
-        state space parameters.
-    names_parameters : List
-        A List with the names of each state parameter components.
-    index_seas_parameters : List
-        A List indicating the corresponding index for the seasonalities model
-        components.
-    F : np.ndarray
-        An array with the of known constants representing the model components.
+    Args:
+        dict_parameters (dict):
+            Posterior (``m``, ``C``) and prior (``a``, ``R``) moments
+            for the state-space parameters over time.
+        entry_m (str):
+            Key in ``dict_parameters`` for the mean vectors.
+        entry_v (str):
+            Key in ``dict_parameters`` for the covariance matrices.
+        names_parameters (List):
+            Names of each state-parameter component.
+        index_seas_parameters (List):
+            Optional indices of seasonal model components.
+        F (np.ndarray):
+            Optional regression vector used to sum seasonal harmonics.
 
     Returns:
-    -------
-    pd.DataFrame
-        A DataFrame in tidy format with columns parameter, mean, and
-        variance for each time.
+        pd.DataFrame:
+            Tidy table with ``parameter``, ``mean``, and ``variance``
+            for each time.
     """
 
     def _get_mean(x: np.ndarray):
-        """Get the mean vector from np.nadarray and transform in pd.DataFrame.
+        """Extract the state mean vector as a DataFrame.
 
-        Parameters
-        ----------
-        x : np.ndarray
-            The mean vector of state space parameters. It could be the prior or
-            posterior moments.
+        Args:
+            x (np.ndarray):
+                Mean vector of state-space parameters (prior or
+                posterior).
 
         Returns:
-        -------
-        pd.DataFrame
-            The extracted mean values.
+            pd.DataFrame:
+                Mean values indexed by parameter name.
         """
         df_out = pd.DataFrame(
             data={"mean": x[:, 0]}, index=names_parameters)
@@ -67,18 +60,16 @@ def tidy_parameters(dict_parameters: dict, entry_m: str, entry_v: str,
         return df_out
 
     def _get_var(x: np.ndarray):
-        """Extract the covariance diagonal and return it as a DataFrame.
+        """Extract the covariance diagonal as a DataFrame.
 
-        Parameters
-        ----------
-        x : np.ndarray
-            The covariance matrix of state space parameters.
-            It could be the prior or posterior moments.
+        Args:
+            x (np.ndarray):
+                Covariance matrix of state-space parameters (prior or
+                posterior).
 
         Returns:
-        -------
-        pd.DataFrame
-            The extracted variance values.
+            pd.DataFrame:
+                Variance values indexed by parameter name.
         """
         df_out = pd.DataFrame(
             data={"variance": np.diag(x)}, index=names_parameters)
@@ -120,6 +111,23 @@ def _add_credible_interval_studentt(
         entry_m: str,
         entry_v: str,
         level=float):
+    """Add Student-t credible intervals to a results DataFrame.
+
+    Args:
+        pd_df (pd.DataFrame):
+            Table with a time column ``t`` and moment columns named by
+            ``entry_m`` and ``entry_v``.
+        entry_m (str):
+            Column name of the location parameter.
+        entry_v (str):
+            Column name of the scale-squared parameter.
+        level (float):
+            Tail probability. ``0.05`` yields a 95% interval.
+
+    Returns:
+        pd.DataFrame:
+            Input table with ``ci_lower`` and ``ci_upper`` columns.
+    """
     df = pd_df["t"].to_numpy() + 1
     mu = pd_df[entry_m].to_numpy()
     sigma = np.sqrt(pd_df[entry_v].to_numpy() + 10e-300)
@@ -147,6 +155,22 @@ def _add_credible_interval_gamma(
         entry_a: str,
         entry_b: str,
         level=float):
+    """Add gamma credible intervals to a results DataFrame.
+
+    Args:
+        pd_df (pd.DataFrame):
+            Table with gamma shape and rate columns.
+        entry_a (str):
+            Column name of the gamma shape parameter.
+        entry_b (str):
+            Column name of the gamma rate parameter.
+        level (float):
+            Tail probability. ``0.05`` yields a 95% interval.
+
+    Returns:
+        pd.DataFrame:
+            Input table with ``ci_lower`` and ``ci_upper`` columns.
+    """
     a = pd_df[entry_a].to_numpy()
     b = 1 / (pd_df[entry_b].to_numpy() + 10e-300)
 
@@ -158,6 +182,18 @@ def _add_credible_interval_gamma(
 
 
 def _create_mod_label_column(mod, t: int):
+    """Build model-block labels for each state component and time.
+
+    Args:
+        mod:
+            Fitted model with DLM and DNM submodel attributes.
+        t (int):
+            Number of time points to repeat the label block.
+
+    Returns:
+        list:
+            Structural-block labels aligned with stacked state rows.
+    """
     poly_mod = mod.dlm.polynomial_model
     regr_mod = mod.dlm.regression_model
     seas_mod = mod.dlm.seasonal_model
@@ -180,7 +216,21 @@ def _create_mod_label_column(mod, t: int):
     return mod_lb
 
 
-def _build_predictive_df(mod, dict_predict: dict, level: float):
+def build_predictive_df(mod, dict_predict: dict, level: float):
+    """Build a predictive DataFrame with Student-t intervals.
+
+    Args:
+        mod:
+            Fitted model. Kept for a consistent builder signature.
+        dict_predict (dict):
+            Mapping with at least ``t``, ``f``, and ``q``.
+        level (float):
+            Tail probability. ``0.05`` yields a 95% interval.
+
+    Returns:
+        pd.DataFrame:
+            Predictive moments with ``ci_lower`` and ``ci_upper``.
+    """
     df_predictive = pd.DataFrame(dict_predict)
 
     # Compute credible intervals
@@ -191,7 +241,7 @@ def _build_predictive_df(mod, dict_predict: dict, level: float):
     return df_predictive
 
 
-def _build_posterior_df(
+def build_posterior_df(
         mod,
         dict_posterior: dict,
         entry_m: str,
@@ -199,6 +249,29 @@ def _build_posterior_df(
         t: int,
         level: float,
         smooth: bool = False):
+    """Build a posterior state DataFrame with Student-t intervals.
+
+    Args:
+        mod:
+            Fitted model used for parameter names and block labels.
+        dict_posterior (dict):
+            State moments keyed by ``entry_m`` and ``entry_v``.
+        entry_m (str):
+            Key for mean vectors (``m`` or ``a``).
+        entry_v (str):
+            Key for covariance matrices (``C`` or ``R``).
+        t (int):
+            Number of time points in the series.
+        level (float):
+            Tail probability. ``0.05`` yields a 95% interval.
+        smooth (bool):
+            If True, time is indexed backwards from ``mod.t``.
+            Defaults to False.
+
+    Returns:
+        pd.DataFrame:
+            Posterior moments with labels and credible intervals.
+    """
     # Organize the posterior parameters
     df_posterior = tidy_parameters(
         dict_parameters=dict_posterior,
@@ -228,11 +301,24 @@ def _build_posterior_df(
     return df_posterior
 
 
-def _build_variance_df(
+def build_variance_df(
         mod,
         dict_observation_var: dict,
         level: float):
+    """Build an observational-variance DataFrame with gamma intervals.
 
+    Args:
+        mod:
+            Fitted model. Kept for a consistent builder signature.
+        dict_observation_var (dict):
+            Mapping with ``t``, ``d``, ``n``, and ``mean``.
+        level (float):
+            Tail probability. ``0.05`` yields a 95% interval.
+
+    Returns:
+        pd.DataFrame:
+            Observational variance with ``ci_lower`` and ``ci_upper``.
+    """
     # Organize observational variance
     df_var = (
         pd.DataFrame(dict_observation_var)

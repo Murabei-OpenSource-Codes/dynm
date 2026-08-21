@@ -13,23 +13,18 @@ class DynamicLinearModel():
     """Class for definition of dynamic linear model structural block."""
 
     def __init__(self, model_dict: dict):
-        """Define model.
+        """Define the dynamic linear model.
 
-        Define model with system equations components
-        and initial information for prior moments.
+        Args:
+            model_dict (dict):
+                Prior moments and definition parameters for each
+                structural block: polynomial, regression and seasonal.
 
-        Parameters
-        ----------
-        model_dict : dict
-            Dictionary containing prior moments and other model definition \
-            parameters for each structural block: polynomial, regression and
-            seasonal.
-
-            Each structural block should be identified by its label and \
-            should have the following parameters:
+        Each structural block should be identified by its label and
+        should have the following parameters:
 
             polynomial:
-                Obrigatory keys: {'m0', 'C0', 'order'}.
+                Required keys: {'m0', 'C0', 'ntrend'}.
 
                 Optional keys (choose one): {'W', 'discount'}.
 
@@ -43,15 +38,15 @@ class DynamicLinearModel():
                    polynomial model.
 
                 - 'W' (np.ndarray, optional): Process noise covariance matrix.
-                   If 'W' is unkown it will be estimated
+                   If 'W' is unknown it will be estimated
                    using discount factor.
 
                 - 'discount' (float, optional): Discount factor
-                   betwen 0 and 1. If 'W' is unkown it will be estimated
+                   between 0 and 1. If 'W' is unknown it will be estimated
                    using discount factor.
 
             regression:
-                Obrigatory keys: {'m0', 'C0', 'nregn'}.
+                Required keys: {'m0', 'C0', 'nregn'}.
 
                 Optional keys (choose one): {'W', 'discount'}.
 
@@ -71,7 +66,7 @@ class DynamicLinearModel():
                    Choose either 'W' or 'discount'.
 
             seasonal:
-                Obligatory keys: {'m0', 'C0',
+                Required keys: {'m0', 'C0',
                                   'seas_period', 'seas_harm_components'}.
 
                 Optional keys (choose one): {'W', 'discount'}.
@@ -122,9 +117,8 @@ class DynamicLinearModel():
         """Validate keys in the model dictionary.
 
         Raises:
-        ------
-        ValueError
-            If required keys are missing.
+            ValueError:
+                If required keys are missing.
         """
         poly_model_dict = self.model_dict.get('polynomial')
         regn_model_dict = self.model_dict.get('regression')
@@ -146,9 +140,8 @@ class DynamicLinearModel():
         """Validate mean array in the model dictionary.
 
         Raises:
-        ------
-        ValueError
-            If prior mean arrays are incorrect.
+            ValueError:
+                If prior mean arrays are incorrect.
         """
         poly_model_dict = self.model_dict.get('polynomial')
         regn_model_dict = self.model_dict.get('regression')
@@ -170,9 +163,8 @@ class DynamicLinearModel():
         """Validate covariance matrix in the model dictionary.
 
         Raises:
-        ------
-        ValueError
-            If prior covariance matrices are incorrect.
+            ValueError:
+                If prior covariance matrices are incorrect.
         """
         poly_model_dict = self.model_dict.get('polynomial')
         regn_model_dict = self.model_dict.get('regression')
@@ -194,10 +186,9 @@ class DynamicLinearModel():
         """Validate discount in the model dictionary.
 
         Raises:
-        ------
-        ValueError
-            If the discount factor is not a scalar or falls
-            outside the [0, 1] interval.
+            ValueError:
+                If the discount factor is not a scalar or falls
+                outside the [0, 1] interval.
         """
         poly_model_dict = self.model_dict.get('polynomial')
         regn_model_dict = self.model_dict.get('regression')
@@ -216,7 +207,7 @@ class DynamicLinearModel():
                 model_dict=seas_model_dict)
 
     def _set_submodels(self):
-        """Set submodels based on the model dictionary."""
+        """Instantiate polynomial, regression, and seasonal blocks."""
         if self.model_dict.get('polynomial') is not None:
             submod_dict = self.model_dict.get('polynomial')
             self.ntrend = submod_dict.get('ntrend')
@@ -267,19 +258,19 @@ class DynamicLinearModel():
         self.seasonal_model = seasonal_mod
 
     def _concatenate_regression_vector(self):
-        """Concatenate regression vectors."""
+        """Stack submodel regression vectors into ``F``."""
         self.F = np.vstack((self.polynomial_model.F,
                             self.regression_model.F,
                             self.seasonal_model.F))
 
     def _concatenate_evolution_matrix(self):
-        """Concatenate equation evolution matrices."""
+        """Block-diagonalise submodel evolution matrices into ``G``."""
         self.G = block_diag(self.polynomial_model.G,
                             self.regression_model.G,
                             self.seasonal_model.G)
 
     def _concatenate_prior_mean(self):
-        """Concatenate prior means vectors."""
+        """Stack submodel prior means into ``a`` and ``m``."""
         self.a = np.vstack((self.polynomial_model.m,
                             self.regression_model.m,
                             self.seasonal_model.m))
@@ -288,7 +279,7 @@ class DynamicLinearModel():
                             self.seasonal_model.m))
 
     def _concatenate_prior_covariance_matrix(self):
-        """Concatenate prior covariance matrices."""
+        """Block-diagonalise prior covariances into ``R`` and ``C``."""
         self.R = block_diag(self.polynomial_model.C,
                             self.regression_model.C,
                             self.seasonal_model.C)
@@ -297,7 +288,7 @@ class DynamicLinearModel():
                             self.seasonal_model.C)
 
     def _set_submodels_block_index(self):
-        """Set block indices for submodels."""
+        """Store index slices and grids for each DLM submodel."""
         nparams_polynomial = len(self.polynomial_model.m)
         nparams_regression = len(self.regression_model.m)
         nparams_seasonal = len(self.seasonal_model.m)
@@ -330,7 +321,7 @@ class DynamicLinearModel():
         }
 
     def _set_parameters_name(self):
-        """Set parameter names."""
+        """Assign names to DLM state components."""
         level_labels = \
             ['intercept_' + str(i + 1)
              for i in range(self.polynomial_model.ntrend)]
@@ -347,7 +338,17 @@ class DynamicLinearModel():
         self.names_parameters = names_parameters
 
     def _build_F(self, x: np.array = None):
-        """Build regression vector."""
+        """Build the stacked DLM regression vector.
+
+        Args:
+            x (np.ndarray):
+                Optional regressors for the regression block.
+
+        Returns:
+            np.ndarray:
+                Column vector concatenating polynomial, regression,
+                and seasonal ``F``.
+        """
         F_poly = self.polynomial_model.F
         F_regn = self.regression_model._update_F(x=x)
         F_seas = self.seasonal_model.F
@@ -357,7 +358,12 @@ class DynamicLinearModel():
         return F
 
     def _build_G(self):
-        """Build system equation evolution matrix."""
+        """Build the stacked DLM evolution matrix.
+
+        Returns:
+            np.ndarray:
+                Block-diagonal ``G``.
+        """
         G_poly = self.polynomial_model.G
         G_regn = self.regression_model.G
         G_seas = self.seasonal_model.G
@@ -367,7 +373,12 @@ class DynamicLinearModel():
         return G
 
     def _build_W(self):
-        """Build process noise covariance matrix."""
+        """Build the stacked DLM evolution covariance.
+
+        Returns:
+            np.ndarray:
+                Block-diagonal ``W``.
+        """
         P_poly = self.polynomial_model._build_P()
         P_regn = self.regression_model._build_P()
         P_seas = self.seasonal_model._build_P()
@@ -381,7 +392,7 @@ class DynamicLinearModel():
         return W
 
     def _update_submodels_F(self):
-        """Update regression vector for each submodel."""
+        """Copy stacked ``F`` slices back to each submodel."""
         idx_poly = self.model_index_dict.get('polynomial')
         idx_regn = self.model_index_dict.get('regression')
         idx_seas = self.model_index_dict.get('seasonal')
@@ -391,7 +402,7 @@ class DynamicLinearModel():
         self.seasonal_model.F = self.F[idx_seas]
 
     def _update_submodels_G(self):
-        """Update system equation evolution matrices for each submodel."""
+        """Copy stacked ``G`` blocks back to each submodel."""
         grid_poly_x, grid_poly_y = self.grid_index_dict.get('polynomial')
         grid_regn_x, grid_regn_y = self.grid_index_dict.get('regression')
         grid_seas_x, grid_seas_y = self.grid_index_dict.get('seasonal')
@@ -401,7 +412,7 @@ class DynamicLinearModel():
         self.seasonal_model.G = self.G[grid_seas_x, grid_seas_y]
 
     def _update_submodels_moments(self):
-        """Update prior moments for each submodel."""
+        """Copy stacked ``m`` and ``C`` back to each submodel."""
         idx_poly = self.model_index_dict.get('polynomial')
         idx_regn = self.model_index_dict.get('regression')
         idx_seas = self.model_index_dict.get('seasonal')

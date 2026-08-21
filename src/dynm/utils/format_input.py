@@ -7,12 +7,16 @@ def set_X_dict(mod, nobs: int, X: dict = {}):
     """Fill missing regression and transfer-function input arrays.
 
     Args:
-        mod: Model instance used to infer transfer-function shape.
-        nobs (int): Number of time observations.
-        X (dict): Optional covariate dict. Missing keys are filled.
+        mod:
+            Model instance used to infer transfer-function shape.
+        nobs (int):
+            Number of time observations.
+        X (dict):
+            Optional covariate dict. Missing keys are filled.
 
     Returns:
-        dict: Copy of ``X`` with both expected keys present.
+        dict:
+            Copy of ``X`` with both expected keys present.
     """
     copy_X = X.copy()
 
@@ -34,11 +38,14 @@ def compute_lagged_values(X: np.array, lags: int):
     """Build a lagged covariate array for transfer-function inputs.
 
     Args:
-        X (np.ndarray): Observed covariates with shape (nobs, ntfm).
-        lags (int): Number of lags to include, including lag 0.
+        X (np.ndarray):
+            Observed covariates with shape (nobs, ntfm).
+        lags (int):
+            Number of lags to include, including lag 0.
 
     Returns:
-        np.ndarray: Array with shape (nobs, ntfm, lags).
+        np.ndarray:
+            Array with shape (nobs, ntfm, lags).
     """
     nobs = X.shape[0]
     ntfm = X.shape[1]

@@ -1,29 +1,25 @@
 """Smoothing for Dynamic Linear Models."""
 import numpy as np
-from dynm.utils.format_result import _build_predictive_df, _build_posterior_df
+from dynm.utils.format_result import build_predictive_df, build_posterior_df
 from dynm.utils.format_input import set_X_dict
 
 
-def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
-    """Perform backward smoother.
+def backward_smoother(mod, X: dict = {}, level: float = 0.05):
+    """Run the backward smoother on filtered state moments.
 
-    That is, obtain the smoothing moments of the one-step ahead predictive
-    distribution and state space posterior distribution.
-
-    Parameters
-    ----------
-    dict_state_parms : dict
-        dictionary with the posterior (m and C) and prior (a and R) moments
-        for the state space parameters along time.
+    Args:
+        mod:
+            Fitted model with ``dict_state_params`` and
+            ``dict_state_evolution``.
+        X (dict):
+            Optional regressor and transfer-function inputs.
+        level (float):
+            Tail probability for credible intervals. Defaults to 0.05.
 
     Returns:
-    -------
-    List: It contains the following components:
-        - `df_predictive_smooth`: pd.DataFrame with the smoothing moments
-        of predictive distribution.
-
-        - `df_posterior_smooth`: pd.DataFrame with the smoothing moments
-        of posterior state space distribution.
+        dict:
+            Smoothed predictive and posterior tables plus the raw
+            smoother moments.
     """
     nobs = len(mod.dict_state_params.get('a'))
     copy_X = set_X_dict(mod=mod, nobs=nobs, X=X)
@@ -58,7 +54,8 @@ def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
     # Perform smoothing
     for k in range(1, nobs):
         Xk['regression'] = copy_X['regression'][nobs - k - 1, :]
-        Xk['transfer_function'] = copy_X['transfer_function'][nobs - k - 1, :, :]
+        Xk['transfer_function'] = (
+            copy_X['transfer_function'][nobs - k - 1, :, :])
 
         Fk = mod._build_F(x=Xk['regression'])
         Gk = G[nobs - k]
@@ -87,10 +84,10 @@ def _backward_smoother(mod, X: dict = {}, level: float = 0.05):
         dict_smooth_params.keys() & {"t", "f", "q", "df"})}
 
     # Get posterior and predictive dataframes
-    df_predictive = _build_predictive_df(
+    df_predictive = build_predictive_df(
         mod=mod, dict_predict=dict_filter, level=level)
 
-    df_posterior = _build_posterior_df(
+    df_posterior = build_posterior_df(
         mod=mod,
         dict_posterior=dict_smooth_params,
         entry_m="a",

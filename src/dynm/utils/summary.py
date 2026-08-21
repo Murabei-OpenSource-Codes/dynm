@@ -4,14 +4,16 @@ from scipy import stats
 
 
 def summary(mod):
-    """Generate a summary of Bayesian Dynamic Linear Model results.
+    """Build a text summary of fitted model results.
 
-    Parameters:
-    mod (object): An instance of a Bayesian Dynamic Linear Model.
+    Args:
+        mod:
+            Fitted Bayesian dynamic model instance.
 
     Returns:
-    str: A summary string containing posterior parameter estimates and
-    predictive log-likelihood.
+        str:
+            Posterior estimates at the last time and the predictive
+            log-likelihood.
     """
     nobs = mod.t
 
@@ -35,13 +37,15 @@ def summary(mod):
 
 
 def get_predictive_log_likelihood(mod):
-    """Calculate the predictive log-likelihood.
+    """Compute the one-step predictive log-likelihood.
 
-    Parameters:
-    mod (object): An instance of a Bayesian Dynamic Linear Model.
+    Args:
+        mod:
+            Fitted model with a predictive filter table.
 
     Returns:
-    float: The predictive log-likelihood.
+        float:
+            Sum of Student-t log-densities of the observations.
     """
     predictive_df = mod.dict_filter.get('predictive').dropna().copy()
     y = predictive_df.y.to_numpy()

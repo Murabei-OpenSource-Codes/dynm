@@ -5,7 +5,7 @@ from dynm.utils.algebra import _build_Gnonlinear, _build_W_diagonal
 
 
 class AutoRegressive():
-    """Class for fitting, forecast and update dynamic linear models."""
+    """Autoregressive block in state-space form."""
 
     def __init__(self,
                  m0: np.ndarray,
@@ -14,20 +14,22 @@ class AutoRegressive():
                  discount: float = None,
                  W: np.ndarray = None,
                  V: float = None):
-        """Define model.
+        """Define an autoregressive block.
 
-        Define model with observation/system equations components \
-        and initial information for prior moments.
-
-        Parameters
-        ----------
-        m0 : np.ndarray
-            prior mean for state space components.
-        C0 : np.ndarray
-            prior covariance for state space components.
-        delta : float
-            discount factor.
-
+        Args:
+            m0 (np.ndarray):
+                Prior mean of the AR state.
+            C0 (np.ndarray):
+                Prior covariance of the AR state.
+            order (int):
+                Autoregressive order.
+            discount (float):
+                Discount factor used when ``W`` is unknown.
+                Defaults to None.
+            W (np.ndarray):
+                Optional known evolution covariance. Defaults to None.
+            V (float):
+                Optional known observational variance. Defaults to None.
         """
         self.order = order
         self.m = m0.reshape(-1, 1)
@@ -60,17 +62,39 @@ class AutoRegressive():
         }
 
     def _build_F(self, x: np.array = None):
+        """Build the AR regression vector.
+
+        Args:
+            x (np.ndarray):
+                Unused covariate. Kept for interface consistency.
+
+        Returns:
+            np.ndarray:
+                Column vector with a leading one.
+        """
         F = np.zeros(2 * self.order)
         F[0] = 1
         return F.reshape(-1, 1)
 
     def _build_G(self):
+        """Build the nonlinear AR evolution matrix.
+
+        Returns:
+            np.ndarray:
+                Evolution matrix from the current state mean.
+        """
         m = self.m
         order = self.order
         G = _build_Gnonlinear(m=m, order=order)
         return G
 
     def _build_h(self):
+        """Build the nonlinear offset for the AR evolution.
+
+        Returns:
+            np.ndarray:
+                Offset ``h`` such that ``a = G m + h``.
+        """
         G_ = copy.deepcopy(self.G)
         idx = np.ix_(self.index_dict.get('response'),
                      self.index_dict.get('decay'))
@@ -83,9 +107,25 @@ class AutoRegressive():
         return h
 
     def _build_P(self):
+        """Build the evolved prior covariance ``G C G.T``.
+
+        Returns:
+            np.ndarray:
+                Prior covariance of the evolved state.
+        """
         return self.G @ self.C @ self.G.T
 
     def _build_W(self, P: np.array):
+        """Build the evolution covariance.
+
+        Args:
+            P (np.ndarray):
+                Evolved prior covariance ``G C G.T``.
+
+        Returns:
+            np.ndarray:
+                Known ``W`` or a discounted estimate from ``P``.
+        """
         if self.estimate_W:
             W = _build_W_diagonal(mod=self, P=P)
             W[1:self.order, 1:self.order] = W[1:self.order, 1:self.order] * 0.0
